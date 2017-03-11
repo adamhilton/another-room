@@ -32,15 +32,13 @@ class RoomSystem : EntitySystem() {
 
     fun createRooms() {
 
-        var validRooms = ArrayList<Rectangle>()
-        validRooms.add(createFirstRoom(GameConfig.MEDIUM_ROOM_DIMENSION, GameConfig.MEDIUM_ROOM_DIMENSION))
+        var validRoomsWithWalls = ArrayList<Rectangle>()
+        validRoomsWithWalls.add(createFirstRoom(GameConfig.MEDIUM_ROOM_DIMENSION, GameConfig.MEDIUM_ROOM_DIMENSION))
         for (i in 0..1000) {
 
             var rectangle = Rectangle()
-            val roomWidth = GameConfig.MEDIUM_ROOM_DIMENSION
-            val roomHeight = GameConfig.MEDIUM_ROOM_DIMENSION
-            val roomWidthWithWalls = roomWidth + (GameConfig.WALL_SIZE * 2)
-            val roomHeightWithWalls = roomHeight + (GameConfig.WALL_SIZE * 2)
+            val roomWidthWithWalls = GameConfig.MEDIUM_ROOM_DIMENSION + GameConfig.ROOM_BUFFER
+            val roomHeightWithWalls = GameConfig.MEDIUM_ROOM_DIMENSION + GameConfig.ROOM_BUFFER
 
             rectangle.setSize(
                     roomWidthWithWalls,
@@ -53,38 +51,52 @@ class RoomSystem : EntitySystem() {
                 setRandomPosition(rectangle)
 
                 var roomCanNotBePlaced = false
-                validRooms.forEach {
-                    if(rectangle.overlaps(it)) {
+                validRoomsWithWalls.forEach {
+                    if(rectangle.overlaps(it) || it.overlaps(rectangle)) {
                         roomCanNotBePlaced = true
                     }
                 }
                 if (!roomCanNotBePlaced) {
-                    rectangle.setSize(GameConfig.MEDIUM_ROOM_DIMENSION, GameConfig.MEDIUM_ROOM_DIMENSION)
-                    validRooms.add(rectangle)
+                    validRoomsWithWalls.add(rectangle)
                     break
                 }
             }
         }
 
-        validRooms.forEach {
-            val position = engine.createComponent(PositionComponent::class.java)
-            position.x = it.x
-            position.y = it.y
-
-            val dimension = engine.createComponent(DimensionComponent::class.java)
-            dimension.width = it.width
-            dimension.height = it.height
-
-            val bounds = engine.createComponent(BoundsComponent::class.java)
-            bounds.rectangle = it
-
+        validRoomsWithWalls.forEach {
             val roomEntity = engine.createEntity()
+
+            val position = positionComponent(it)
+            val dimension = dimensionComponent(it)
+            val bounds = boundsComponent(position, dimension)
+
             roomEntity.add(position)
             roomEntity.add(dimension)
             roomEntity.add(bounds)
 
             engine.addEntity(roomEntity)
         }
+    }
+
+    private fun positionComponent(it: Rectangle): PositionComponent {
+        val position = engine.createComponent(PositionComponent::class.java)
+        position.x = it.x
+        position.y = it.y
+        return position
+    }
+
+    private fun boundsComponent(position: PositionComponent, dimension: DimensionComponent): BoundsComponent? {
+        val bounds = engine.createComponent(BoundsComponent::class.java)
+        bounds.rectangle.setPosition(position.x, position.y)
+        bounds.rectangle.setSize(dimension.width, dimension.height)
+        return bounds
+    }
+
+    private fun dimensionComponent(it: Rectangle): DimensionComponent {
+        val dimension = engine.createComponent(DimensionComponent::class.java)
+        dimension.width = it.width - GameConfig.ROOM_BUFFER
+        dimension.height = it.height - GameConfig.ROOM_BUFFER
+        return dimension
     }
 
     private fun setRandomPosition(rectangle: Rectangle) {
@@ -105,8 +117,8 @@ class RoomSystem : EntitySystem() {
         return Rectangle(
                 GameConfig.WORLD_CENTER_X - (roomWidth / 2f),
                 GameConfig.WORLD_CENTER_Y - (roomHeight / 2f),
-                roomWidth,
-                roomHeight
+                roomWidth + GameConfig.ROOM_BUFFER,
+                roomHeight + GameConfig.ROOM_BUFFER
         )
     }
 }

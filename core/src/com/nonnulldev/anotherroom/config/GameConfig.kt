@@ -15,8 +15,10 @@ class GameConfig private constructor(){
         val PLAYER_SIZE = 1f // world units
 
         val ROOM_TILE_SIZE = 1f
-        val MEDIUM_ROOM_DIMENSION = 3f
+        val MEDIUM_ROOM_DIMENSION = 7f
 
         val WALL_SIZE = 1f
+
+        val ROOM_BUFFER = WALL_SIZE + 2f
     }
 }
