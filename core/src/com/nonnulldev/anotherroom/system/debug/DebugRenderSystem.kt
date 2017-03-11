@@ -28,6 +28,8 @@ class DebugRenderSystem(private val viewport: Viewport, private val renderer: Sh
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val bounds = Mappers.BOUNDS.get(entity)
 
+        renderer.color = bounds.color
+
         renderer.rect(bounds.rectangle.x, bounds.rectangle.y,
                 bounds.rectangle.width, bounds.rectangle.height
         )

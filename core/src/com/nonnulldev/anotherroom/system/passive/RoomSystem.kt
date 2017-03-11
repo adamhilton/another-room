@@ -1,6 +1,7 @@
 package com.nonnulldev.anotherroom.system.passive
 
 import com.badlogic.ashley.core.*
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.utils.Logger
@@ -89,6 +90,7 @@ class RoomSystem : EntitySystem() {
         val bounds = engine.createComponent(BoundsComponent::class.java)
         bounds.rectangle.setPosition(position.x, position.y)
         bounds.rectangle.setSize(dimension.width, dimension.height)
+        bounds.color = Color.RED
         return bounds
     }
 
