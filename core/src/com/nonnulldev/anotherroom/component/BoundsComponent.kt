@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Pool
 
 class BoundsComponent : Component, Pool.Poolable {
 
-    val rectangle = Rectangle(0f, 0f, 1f, 1f)
+    var rectangle = Rectangle(0f, 0f, 1f, 1f)
 
     override fun reset() {
         rectangle.setPosition(0f, 0f)

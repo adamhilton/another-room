@@ -34,10 +34,6 @@ class DebugRenderSystem(private val viewport: Viewport, private val renderer: Sh
     }
 
     companion object {
-
-
-        private val FAMILY = Family.all(
-                BoundsComponent::class.java
-        ).get()
+        private val FAMILY = Family.all(BoundsComponent::class.java).get()
     }
 }

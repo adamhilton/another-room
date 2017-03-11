@@ -13,6 +13,7 @@ import com.nonnulldev.anotherroom.system.debug.DebugCameraSystem
 import com.nonnulldev.anotherroom.system.debug.DebugInputSystem
 import com.nonnulldev.anotherroom.system.debug.DebugRenderSystem
 import com.nonnulldev.anotherroom.system.debug.GridRenderSystem
+import com.nonnulldev.anotherroom.system.passive.RoomSystem
 import com.nonnulldev.anotherroom.util.GdxUtils
 
 class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter() {
@@ -28,7 +29,7 @@ class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter() {
 
     override fun show() {
         camera = OrthographicCamera()
-        viewport = FitViewport(GameConfig.WOLRD_WIDTH, GameConfig.WORLD_HEIGHT, camera)
+        viewport = FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera)
         renderer = ShapeRenderer()
         engine = PooledEngine()
 
@@ -36,6 +37,11 @@ class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter() {
     }
 
     private fun addSystemsToEngine() {
+        addDebugSystemsToEngine()
+        engine.addSystem(RoomSystem())
+    }
+
+    private fun addDebugSystemsToEngine() {
         engine.addSystem(GridRenderSystem(viewport, renderer))
         engine.addSystem(DebugCameraSystem(
                 GameConfig.WORLD_CENTER_X,
