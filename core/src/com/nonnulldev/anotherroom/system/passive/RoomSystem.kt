@@ -15,53 +15,23 @@ class RoomSystem : EntitySystem() {
 
     lateinit private var engine: PooledEngine
 
+    private var validRoomsWithWalls = ArrayList<Rectangle>()
+
     override fun checkProcessing(): Boolean {
         return false
     }
 
     override fun addedToEngine(engine: Engine?) {
         this.engine = engine as PooledEngine
-        log.debug("Starting room creation")
-        var entityCount = engine.entities.count()
-        log.debug("Entity count: $entityCount")
         createRooms()
-        entityCount = engine.entities.count()
-        log.debug("Room completion complete!")
-        log.debug("Entity count: $entityCount")
     }
 
     fun createRooms() {
-
-        var validRoomsWithWalls = ArrayList<Rectangle>()
         validRoomsWithWalls.add(createFirstRoom(GameConfig.MEDIUM_ROOM_DIMENSION, GameConfig.MEDIUM_ROOM_DIMENSION))
-        for (i in 0..1000) {
 
-            var rectangle = Rectangle()
-            val roomWidthWithWalls = GameConfig.MEDIUM_ROOM_DIMENSION + GameConfig.ROOM_BUFFER
-            val roomHeightWithWalls = GameConfig.MEDIUM_ROOM_DIMENSION + GameConfig.ROOM_BUFFER
-
-            rectangle.setSize(
-                    roomWidthWithWalls,
-                    roomHeightWithWalls
-            )
-
-            var numOfTries = 20
-            for (i in 0..numOfTries) {
-
-                setRandomPosition(rectangle)
-
-                var roomCanNotBePlaced = false
-                validRoomsWithWalls.forEach {
-                    if(rectangle.overlaps(it) || it.overlaps(rectangle)) {
-                        roomCanNotBePlaced = true
-                    }
-                }
-                if (!roomCanNotBePlaced) {
-                    validRoomsWithWalls.add(rectangle)
-                    break
-                }
-            }
-        }
+        generateRooms(GameConfig.LARGE_ROOM_DIMENSION, GameConfig.LARGE_ROOM_DIMENSION)
+        generateRooms(GameConfig.SMALL_ROOM_DIMENSION, GameConfig.SMALL_ROOM_DIMENSION)
+        generateRooms(GameConfig.MEDIUM_ROOM_DIMENSION, GameConfig.MEDIUM_ROOM_DIMENSION)
 
         validRoomsWithWalls.forEach {
             val roomEntity = engine.createEntity()
@@ -75,6 +45,36 @@ class RoomSystem : EntitySystem() {
             roomEntity.add(bounds)
 
             engine.addEntity(roomEntity)
+        }
+    }
+
+    private fun generateRooms(roomWidth: Float, roomHeight: Float) {
+        for (i in 0..MathUtils.random(GameConfig.ROOM_CREATION_ATTEMPTS)) {
+
+            var rectangle = Rectangle()
+            val roomWidthWithWalls = roomWidth + GameConfig.ROOM_BUFFER
+            val roomHeightWithWalls = roomHeight + GameConfig.ROOM_BUFFER
+
+            rectangle.setSize(
+                    roomWidthWithWalls,
+                    roomHeightWithWalls
+            )
+
+            for (i in 0..GameConfig.ROOM_CREATION_REPEATED_ATTEMPTS) {
+
+                setRandomPosition(rectangle)
+
+                var roomCanNotBePlaced = false
+                validRoomsWithWalls.forEach {
+                    if (rectangle.overlaps(it) || it.overlaps(rectangle)) {
+                        roomCanNotBePlaced = true
+                    }
+                }
+                if (!roomCanNotBePlaced) {
+                    validRoomsWithWalls.add(rectangle)
+                    break
+                }
+            }
         }
     }
 
@@ -100,12 +100,12 @@ class RoomSystem : EntitySystem() {
     }
 
     private fun setRandomPosition(rectangle: Rectangle) {
-        val maxX = GameConfig.WORLD_WIDTH - GameConfig.MEDIUM_ROOM_DIMENSION - 1f
+        val maxX = GameConfig.WORLD_WIDTH - rectangle.width - 1f
         val minX = 1f
         val rectangleX = Math.round(MathUtils.random(
                 minX, maxX)).toFloat()
 
-        val maxY = GameConfig.WORLD_HEIGHT - GameConfig.MEDIUM_ROOM_DIMENSION - 1f
+        val maxY = GameConfig.WORLD_HEIGHT - rectangle.width - 1f
         val minY = 1f
         val rectangleY = Math.round(MathUtils.random(
                 minY, maxY)).toFloat()
