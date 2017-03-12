@@ -8,7 +8,7 @@ import com.nonnulldev.anotherroom.component.DimensionComponent
 import com.nonnulldev.anotherroom.component.PositionComponent
 import com.nonnulldev.anotherroom.component.RoomComponent
 import com.nonnulldev.anotherroom.config.GameConfig
-import com.nonnulldev.anotherroom.enum.DIRECTION
+import com.nonnulldev.anotherroom.enum.Direction
 import com.nonnulldev.anotherroom.util.Mappers
 
 class DoorGenerationSystem : EntitySystem() {
@@ -30,12 +30,12 @@ class DoorGenerationSystem : EntitySystem() {
             val bounds = Mappers.BOUNDS.get(it)
             val room = Mappers.ROOM.get(it)
 
-            val doorDirection = DIRECTION.random()
+            val doorDirection = Direction.random()
 
             val roomRectangle = getRoomWithWalls(bounds)
 
             val door = createDoor(roomRectangle, doorDirection)
-            room.addDoor(doorDirection, door)
+            room.doors[doorDirection] = door
         }
     }
 
@@ -50,7 +50,7 @@ class DoorGenerationSystem : EntitySystem() {
         return room
     }
 
-    private fun createDoor(rectangle: Rectangle, direction: DIRECTION): Entity {
+    private fun createDoor(rectangle: Rectangle, direction: Direction): Entity {
         val door = engine.createEntity()
 
         val doorRectangle = createDoorRectangleFrom(rectangle, direction)
@@ -88,7 +88,7 @@ class DoorGenerationSystem : EntitySystem() {
         return bounds
     }
 
-    private fun createDoorRectangleFrom(rectangle: Rectangle, direction: DIRECTION): Rectangle {
+    private fun createDoorRectangleFrom(rectangle: Rectangle, direction: Direction): Rectangle {
         val doorRectangle = Rectangle()
 
         val rectangleHalfWidth = Math.round(rectangle.width / 2f).toFloat()
@@ -100,13 +100,13 @@ class DoorGenerationSystem : EntitySystem() {
         var doorX = centerX - 2f
         var doorY = centerY - 2f
 
-        if (direction == DIRECTION.NORTH) {
+        if (direction == Direction.NORTH) {
             doorY += rectangleHalfWidth - doorOffset
-        } else if (direction == DIRECTION.SOUTH) {
+        } else if (direction == Direction.SOUTH) {
             doorY += -rectangleHalfHeight + doorOffset
-        } else if (direction == DIRECTION.EAST) {
+        } else if (direction == Direction.EAST) {
             doorX += rectangleHalfWidth - doorOffset
-        } else if (direction == DIRECTION.WEST) {
+        } else if (direction == Direction.WEST) {
             doorX += -rectangleHalfWidth + doorOffset
         }
 

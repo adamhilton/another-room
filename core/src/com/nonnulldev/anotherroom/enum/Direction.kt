@@ -2,7 +2,7 @@ package com.nonnulldev.anotherroom.enum
 
 import java.util.*
 
-enum class DIRECTION{
+enum class Direction {
     NORTH,
     SOUTH,
     EAST,
@@ -11,8 +11,8 @@ enum class DIRECTION{
     companion object {
         private val random = Random()
 
-        fun random(): DIRECTION {
-            val directions: Array<DIRECTION> = DIRECTION.values()
+        fun random(): Direction {
+            val directions: Array<Direction> = Direction.values()
             return directions[random.nextInt(directions.size)]
         }
     }

@@ -41,7 +41,7 @@ class RoomGenerationSystem : EntitySystem() {
             val position = positionComponent(it)
             val dimension = dimensionComponentWithRoomBuffer(it)
             val bounds = boundsComponent(position, dimension)
-            bounds.color = Color.RED
+            bounds.color = Color.SCARLET
             val room = roomComponent()
 
             roomEntity.add(position)
