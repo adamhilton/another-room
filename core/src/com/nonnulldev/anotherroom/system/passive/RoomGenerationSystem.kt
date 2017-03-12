@@ -10,11 +10,10 @@ import com.nonnulldev.anotherroom.component.DimensionComponent
 import com.nonnulldev.anotherroom.component.PositionComponent
 import com.nonnulldev.anotherroom.component.RoomComponent
 import com.nonnulldev.anotherroom.config.GameConfig
-import com.nonnulldev.anotherroom.enum.DIRECTION
 
-class RoomSystem : EntitySystem() {
+class RoomGenerationSystem : EntitySystem() {
 
-    private val log = Logger(RoomSystem::class.simpleName, Logger.DEBUG)
+    private val log = Logger(RoomGenerationSystem::class.simpleName, Logger.DEBUG)
 
     lateinit private var engine: PooledEngine
 
@@ -43,7 +42,7 @@ class RoomSystem : EntitySystem() {
             val dimension = dimensionComponentWithRoomBuffer(it)
             val bounds = boundsComponent(position, dimension)
             bounds.color = Color.RED
-            val room = roomComponent(it)
+            val room = roomComponent()
 
             roomEntity.add(position)
             roomEntity.add(dimension)
@@ -108,57 +107,9 @@ class RoomSystem : EntitySystem() {
         return bounds
     }
 
-    private fun roomComponent(rectangle: Rectangle): RoomComponent {
+    private fun roomComponent(): RoomComponent {
         val room = engine.createComponent(RoomComponent::class.java)
-        val doorDirection = DIRECTION.random()
-        val door = createDoor(rectangle, doorDirection)
-        room.addDoor(doorDirection, door)
         return room
-    }
-
-    private fun createDoor(rectangle: Rectangle, direction: DIRECTION): Entity {
-        val door = engine.createEntity()
-
-        val doorRectangle = createDoorRectangleFrom(rectangle, direction)
-        val position = positionComponent(doorRectangle)
-        val dimension =  dimensionComponent(doorRectangle)
-        val bounds = boundsComponent(position, dimension)
-        bounds.color = Color.GREEN
-
-        door.add(position)
-        door.add(dimension)
-        door.add(bounds)
-
-        engine.addEntity(door)
-        return door
-    }
-
-    private fun createDoorRectangleFrom(rectangle: Rectangle, direction: DIRECTION): Rectangle {
-        val doorRectangle = Rectangle()
-
-        val rectangleHalfWidth = Math.round(rectangle.width / 2f).toFloat()
-        val rectangleHalfHeight = Math.round(rectangle.height / 2f).toFloat()
-        val centerX = rectangle.x + rectangleHalfWidth
-        val centerY = rectangle.y + rectangleHalfHeight
-
-        val doorOffset = GameConfig.DOOR_SIZE + GameConfig.DOOR_HALF_SIZE
-        var doorX = centerX - 2f
-        var doorY = centerY - 2f
-
-        if (direction == DIRECTION.NORTH) {
-            doorY += rectangleHalfWidth - doorOffset
-        } else if (direction == DIRECTION.SOUTH) {
-            doorY += -rectangleHalfHeight + doorOffset
-        } else if (direction == DIRECTION.EAST) {
-            doorX += rectangleHalfWidth - doorOffset
-        } else if (direction == DIRECTION.WEST) {
-            doorX += -rectangleHalfWidth + doorOffset
-        }
-
-        doorRectangle.setPosition(doorX, doorY)
-        doorRectangle.setSize(GameConfig.DOOR_SIZE)
-
-        return doorRectangle
     }
 
     private fun setRandomPosition(rectangle: Rectangle) {
