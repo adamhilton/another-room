@@ -57,8 +57,8 @@ class RoomGenerationSystem : EntitySystem() {
         for (i in 0..GameConfig.ROOM_CREATION_ATTEMPTS) {
 
             var rectangle = Rectangle()
-            val roomWidthWithWalls = roomWidth + GameConfig.ROOM_BUFFER
-            val roomHeightWithWalls = roomHeight + GameConfig.ROOM_BUFFER
+            val roomWidthWithWalls = roomWidth + GameConfig.ROOM_TO_ROOM_BUFFER
+            val roomHeightWithWalls = roomHeight + GameConfig.ROOM_TO_ROOM_BUFFER
 
             rectangle.setSize(
                     roomWidthWithWalls,
@@ -95,8 +95,8 @@ class RoomGenerationSystem : EntitySystem() {
 
     private fun dimensionComponentWithRoomBuffer(rectangle: Rectangle): DimensionComponent {
         val dimension = dimensionComponent(rectangle)
-        dimension.width += -GameConfig.ROOM_BUFFER
-        dimension.height += -GameConfig.ROOM_BUFFER
+        dimension.width += -GameConfig.ROOM_TO_ROOM_BUFFER
+        dimension.height += -GameConfig.ROOM_TO_ROOM_BUFFER
         return dimension
     }
 
@@ -113,13 +113,13 @@ class RoomGenerationSystem : EntitySystem() {
     }
 
     private fun setRandomPosition(rectangle: Rectangle) {
-        val maxX = GameConfig.WORLD_WIDTH - rectangle.width - 1f
-        val minX = 1f
+        val maxX = GameConfig.WORLD_WIDTH - rectangle.width - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
+        val minX = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
         val rectangleX = Math.round(MathUtils.random(
                 minX, maxX)).toFloat()
 
-        val maxY = GameConfig.WORLD_HEIGHT - rectangle.width - 1f
-        val minY = 1f
+        val maxY = GameConfig.WORLD_HEIGHT - rectangle.width - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
+        val minY = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
         val rectangleY = Math.round(MathUtils.random(
                 minY, maxY)).toFloat()
 
@@ -130,8 +130,8 @@ class RoomGenerationSystem : EntitySystem() {
         return Rectangle(
                 GameConfig.WORLD_CENTER_X - (roomWidth / 2f),
                 GameConfig.WORLD_CENTER_Y - (roomHeight / 2f),
-                roomWidth + GameConfig.ROOM_BUFFER,
-                roomHeight + GameConfig.ROOM_BUFFER
+                roomWidth + GameConfig.ROOM_TO_ROOM_BUFFER,
+                roomHeight + GameConfig.ROOM_TO_ROOM_BUFFER
         )
     }
 }

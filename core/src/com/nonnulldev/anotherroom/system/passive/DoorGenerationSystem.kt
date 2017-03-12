@@ -43,8 +43,8 @@ class DoorGenerationSystem : EntitySystem() {
         val room = Rectangle(bounds.rectangle)
 
         room.setSize(
-                room.width + GameConfig.ROOM_BUFFER,
-                room.height + GameConfig.ROOM_BUFFER
+                room.width + GameConfig.ROOM_TO_ROOM_BUFFER,
+                room.height + GameConfig.ROOM_TO_ROOM_BUFFER
         )
 
         return room
@@ -96,7 +96,7 @@ class DoorGenerationSystem : EntitySystem() {
         val centerX = rectangle.x + rectangleHalfWidth
         val centerY = rectangle.y + rectangleHalfHeight
 
-        val doorOffset = GameConfig.DOOR_SIZE + GameConfig.DOOR_HALF_SIZE
+        val doorOffset = GameConfig.DOOR_SIZE
         var doorX = centerX - 2f
         var doorY = centerY - 2f
 
