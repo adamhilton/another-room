@@ -6,8 +6,8 @@ class GameConfig private constructor(){
         val WIDTH = 800 // pixels
         val HEIGHT = 480 // pixels
 
-        val WORLD_WIDTH = 45f // world units
-        val WORLD_HEIGHT = 45f // world units
+        val WORLD_WIDTH = 21f // world units
+        val WORLD_HEIGHT = 21f // world units
 
         val WORLD_CENTER_X = WORLD_WIDTH / 2f // world units
         val WORLD_CENTER_Y = WORLD_HEIGHT / 2f // world units

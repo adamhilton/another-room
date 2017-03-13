@@ -4,13 +4,14 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.math.MathUtils
 import com.nonnulldev.anotherroom.component.BoundsComponent
 import com.nonnulldev.anotherroom.component.DimensionComponent
 import com.nonnulldev.anotherroom.component.PositionComponent
 import com.nonnulldev.anotherroom.config.GameConfig
+import com.nonnulldev.anotherroom.enum.Direction
 import com.nonnulldev.anotherroom.enum.DungeonTiles
 import com.nonnulldev.anotherroom.types.array2dOfDungeonTiles
+import java.util.*
 
 class DungeonGenerationSystem : EntitySystem() {
 
@@ -29,7 +30,7 @@ class DungeonGenerationSystem : EntitySystem() {
 
         val rooms = ArrayList<Room>()
 
-        for (numOfRoomGenerationAttempts in 0..100000) {
+        for (numOfRoomGenerationAttempts in 0..GameConfig.ROOM_CREATION_ATTEMPTS) {
             val randomRoom = createRandomRoom(
                     GameConfig.SMALL_ROOM_DIMENSION.toInt(),
                     GameConfig.SMALL_ROOM_DIMENSION.toInt()
@@ -44,7 +45,7 @@ class DungeonGenerationSystem : EntitySystem() {
             }
         }
 
-        fillPath(centerRoom.coordinates.x - 2, centerRoom.coordinates.y - 2)
+        generatePaths(centerRoom.coordinates.x - 2, centerRoom.coordinates.y - 2)
 
         for (x in 0..dungeon.lastIndex) {
             for (y in 0..dungeon[x].lastIndex) {
@@ -56,7 +57,7 @@ class DungeonGenerationSystem : EntitySystem() {
                 val bounds = boundsComponent(position, dimension)
 
                 if (tile == DungeonTiles.Earth) {
-                    bounds.color = Color.BROWN
+                    bounds.color = Color.CLEAR
                 } else if (tile == DungeonTiles.Room) {
                     bounds.color = Color.BLUE
                 } else if (tile == DungeonTiles.Path) {
@@ -73,24 +74,102 @@ class DungeonGenerationSystem : EntitySystem() {
         }
     }
 
-    private fun fillPath(x: Int, y: Int) {
-            visitNeighbor( x-1, y)
-            visitNeighbor( x+1, y)
-            visitNeighbor( x, y-1)
-            visitNeighbor( x, y+1)
+    private fun generatePaths(x: Int, y: Int) {
+            visitNeighbor( x-1, y, Direction.WEST)
+            visitNeighbor( x+1, y, Direction.EAST)
+            visitNeighbor( x, y-1, Direction.SOUTH)
+            visitNeighbor( x, y+1, Direction.NORTH)
     }
 
-    private fun visitNeighbor (x: Int, y: Int) {
+    private fun visitNeighbor (x: Int, y: Int, direction: Direction) {
         if (x < GameConfig.WALL_SIZE || x >= GameConfig.WORLD_WIDTH - GameConfig.WALL_SIZE)
             return
+
         if (y < GameConfig.WALL_SIZE || y >= GameConfig.WORLD_HEIGHT - GameConfig.WALL_SIZE)
             return
-        if (dungeon[x][y] != DungeonTiles.Earth) {
+
+        if (dungeon[x][y] != DungeonTiles.Earth ) {
             return
-        } else {
-            dungeon[x][y] = DungeonTiles.Path
         }
-        fillPath(x, y)
+
+        if (!enoughSpaceAhead(x, y, direction)) {
+            return
+        }
+
+        dungeon[x][y] = DungeonTiles.Path
+
+        generatePaths(x, y)
+    }
+
+    private fun enoughSpaceAhead(x: Int, y: Int, direction: Direction): Boolean {
+
+        var spacesToCheck = ArrayList<Coordinates>()
+
+        if (direction == Direction.NORTH) {
+            spacesToCheck.add(northCoodinates(x, y))
+            spacesToCheck.add(northEastCoordinates(x, y))
+            spacesToCheck.add(northWestCoodinates(x, y))
+            spacesToCheck.add(eastCoodinates(x, y))
+            spacesToCheck.add(westCoodinates(x, y))
+        } else if (direction == Direction.SOUTH) {
+            spacesToCheck.add(southCoodinates(x, y))
+            spacesToCheck.add(southEastCoodinates(x, y))
+            spacesToCheck.add(southWestCoodinates(x, y))
+            spacesToCheck.add(eastCoodinates(x, y))
+            spacesToCheck.add(westCoodinates(x, y))
+        } else if (direction == Direction.EAST) {
+            spacesToCheck.add(eastCoodinates(x, y))
+            spacesToCheck.add(southEastCoodinates(x, y))
+            spacesToCheck.add(northEastCoordinates(x, y))
+            spacesToCheck.add(northCoodinates(x, y))
+            spacesToCheck.add(southCoodinates(x, y))
+        } else if (direction == Direction.WEST) {
+            spacesToCheck.add(westCoodinates(x, y))
+            spacesToCheck.add(southWestCoodinates(x, y))
+            spacesToCheck.add(northWestCoodinates(x, y))
+            spacesToCheck.add(northCoodinates(x, y))
+            spacesToCheck.add(southCoodinates(x, y))
+        }
+
+        spacesToCheck.forEach {
+            if (dungeon[it.x][it.y] != DungeonTiles.Earth) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    fun northCoodinates(x: Int, y: Int): Coordinates {
+        return Coordinates(x, y + 1)
+    }
+
+    fun northEastCoordinates(x: Int, y: Int): Coordinates {
+        return Coordinates(x + 1, y + 1)
+    }
+
+    fun southCoodinates(x: Int, y: Int): Coordinates {
+        return Coordinates(x, y - 1)
+    }
+
+    fun southEastCoodinates(x: Int, y: Int): Coordinates {
+        return Coordinates(x + 1, y - 1)
+    }
+
+    fun eastCoodinates(x: Int, y: Int): Coordinates {
+        return Coordinates(x + 1, y)
+    }
+
+    fun northWestCoodinates(x: Int, y: Int): Coordinates {
+        return Coordinates(x - 1, y + 1)
+    }
+
+    fun westCoodinates(x: Int, y: Int): Coordinates {
+        return Coordinates(x - 1, y)
+    }
+
+    fun southWestCoodinates(x: Int, y: Int): Coordinates {
+        return Coordinates(x - 1, y - 1)
     }
 
     private fun centerRoom(roomWidth: Int, roomHeight: Int): Room {
@@ -136,15 +215,18 @@ class DungeonGenerationSystem : EntitySystem() {
     }
 
     fun randomPosition(width: Int, height: Int): Coordinates {
+
+        val random = Random()
+
         val maxX = GameConfig.WORLD_WIDTH - width - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
         val minX = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
-        val rectangleX = Math.round(MathUtils.random(
-                minX, maxX)).toFloat()
+
+        var rectangleX = minX+random.nextInt(((maxX-minX)/2).toInt()) *2
 
         val maxY = GameConfig.WORLD_HEIGHT - height - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
         val minY = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
-        val rectangleY = Math.round(MathUtils.random(
-                minY, maxY)).toFloat()
+
+        var rectangleY = minY+random.nextInt(((maxY-minY)/2).toInt()) *2
 
         return Coordinates(rectangleX.toInt(), rectangleY.toInt())
     }
