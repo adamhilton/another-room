@@ -14,6 +14,7 @@ import com.nonnulldev.anotherroom.system.debug.DebugInputSystem
 import com.nonnulldev.anotherroom.system.debug.DebugRenderSystem
 import com.nonnulldev.anotherroom.system.debug.GridRenderSystem
 import com.nonnulldev.anotherroom.system.passive.DoorGenerationSystem
+import com.nonnulldev.anotherroom.system.passive.DungeonGenerationSystem
 import com.nonnulldev.anotherroom.system.passive.PathGenerationSystem
 import com.nonnulldev.anotherroom.system.passive.RoomGenerationSystem
 import com.nonnulldev.anotherroom.util.GdxUtils
@@ -40,9 +41,10 @@ class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter() {
 
     private fun addSystemsToEngine() {
         addDebugSystemsToEngine()
-        engine.addSystem(RoomGenerationSystem())
-        engine.addSystem(DoorGenerationSystem())
-        engine.addSystem(PathGenerationSystem())
+//        engine.addSystem(RoomGenerationSystem())
+//        engine.addSystem(DoorGenerationSystem())
+//        engine.addSystem(PathGenerationSystem())
+        engine.addSystem(DungeonGenerationSystem())
     }
 
     private fun addDebugSystemsToEngine() {

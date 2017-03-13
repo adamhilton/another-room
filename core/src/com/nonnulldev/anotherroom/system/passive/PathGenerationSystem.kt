@@ -180,7 +180,7 @@ class PathGenerationSystem : EntitySystem() {
 
         return room
     }
-    
+
     companion object {
         @JvmStatic
         private val FAMILY = Family.all(RoomComponent::class.java, DimensionComponent::class.java).get()
