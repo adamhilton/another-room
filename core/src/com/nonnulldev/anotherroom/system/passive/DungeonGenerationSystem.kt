@@ -8,8 +8,12 @@ import com.nonnulldev.anotherroom.component.BoundsComponent
 import com.nonnulldev.anotherroom.component.DimensionComponent
 import com.nonnulldev.anotherroom.component.PositionComponent
 import com.nonnulldev.anotherroom.config.GameConfig
+import com.nonnulldev.anotherroom.data.Coordinates
+import com.nonnulldev.anotherroom.data.Dimension
+import com.nonnulldev.anotherroom.data.Room
 import com.nonnulldev.anotherroom.enum.Direction
 import com.nonnulldev.anotherroom.enum.DungeonTiles
+import com.nonnulldev.anotherroom.enum.RoomSize
 import com.nonnulldev.anotherroom.types.array2dOfDungeonTiles
 import java.util.*
 
@@ -31,10 +35,7 @@ class DungeonGenerationSystem : EntitySystem() {
         val rooms = ArrayList<Room>()
 
         for (numOfRoomGenerationAttempts in 0..GameConfig.ROOM_CREATION_ATTEMPTS) {
-            val randomRoom = createRandomRoom(
-                    GameConfig.SMALL_ROOM_DIMENSION.toInt(),
-                    GameConfig.SMALL_ROOM_DIMENSION.toInt()
-            )
+            val randomRoom = createRandomRoom()
             rooms.add(randomRoom)
         }
 
@@ -45,7 +46,13 @@ class DungeonGenerationSystem : EntitySystem() {
             }
         }
 
-        generatePaths(centerRoom.coordinates.x - 2, centerRoom.coordinates.y - 2)
+        // TODO: randomize paths and make sure there is a path everywhere
+        loopDungeon { x, y ->
+            var tileIsEarth = dungeon[x][y] == DungeonTiles.Earth
+            if (tileIsEarth){
+                generatePaths(x, y)
+            }
+        }
 
         for (x in 0..dungeon.lastIndex) {
             for (y in 0..dungeon[x].lastIndex) {
@@ -72,6 +79,15 @@ class DungeonGenerationSystem : EntitySystem() {
                 engine.addEntity(entity)
             }
         }
+    }
+
+    // TODO: may not need this anymore, was used to check if
+    // space in any direction during random flood filling for paths
+    private fun spaceInAnyDirectionForPath(x: Int, y: Int): Boolean {
+        return enoughSpaceAhead(x, y, Direction.NORTH) ||
+                enoughSpaceAhead(x, y, Direction.SOUTH) ||
+                enoughSpaceAhead(x, y, Direction.EAST) ||
+                enoughSpaceAhead(x, y, Direction.WEST)
     }
 
     private fun generatePaths(x: Int, y: Int) {
@@ -106,29 +122,29 @@ class DungeonGenerationSystem : EntitySystem() {
         var spacesToCheck = ArrayList<Coordinates>()
 
         if (direction == Direction.NORTH) {
-            spacesToCheck.add(northCoodinates(x, y))
+            spacesToCheck.add(northCoordinates(x, y))
             spacesToCheck.add(northEastCoordinates(x, y))
-            spacesToCheck.add(northWestCoodinates(x, y))
-            spacesToCheck.add(eastCoodinates(x, y))
-            spacesToCheck.add(westCoodinates(x, y))
+            spacesToCheck.add(northWestCoordinates(x, y))
+            spacesToCheck.add(eastCoordinates(x, y))
+            spacesToCheck.add(westCoordinates(x, y))
         } else if (direction == Direction.SOUTH) {
-            spacesToCheck.add(southCoodinates(x, y))
-            spacesToCheck.add(southEastCoodinates(x, y))
-            spacesToCheck.add(southWestCoodinates(x, y))
-            spacesToCheck.add(eastCoodinates(x, y))
-            spacesToCheck.add(westCoodinates(x, y))
+            spacesToCheck.add(southCoordinates(x, y))
+            spacesToCheck.add(southEastCoordinates(x, y))
+            spacesToCheck.add(southWestCoordinates(x, y))
+            spacesToCheck.add(eastCoordinates(x, y))
+            spacesToCheck.add(westCoordinates(x, y))
         } else if (direction == Direction.EAST) {
-            spacesToCheck.add(eastCoodinates(x, y))
-            spacesToCheck.add(southEastCoodinates(x, y))
+            spacesToCheck.add(eastCoordinates(x, y))
+            spacesToCheck.add(southEastCoordinates(x, y))
             spacesToCheck.add(northEastCoordinates(x, y))
-            spacesToCheck.add(northCoodinates(x, y))
-            spacesToCheck.add(southCoodinates(x, y))
+            spacesToCheck.add(northCoordinates(x, y))
+            spacesToCheck.add(southCoordinates(x, y))
         } else if (direction == Direction.WEST) {
-            spacesToCheck.add(westCoodinates(x, y))
-            spacesToCheck.add(southWestCoodinates(x, y))
-            spacesToCheck.add(northWestCoodinates(x, y))
-            spacesToCheck.add(northCoodinates(x, y))
-            spacesToCheck.add(southCoodinates(x, y))
+            spacesToCheck.add(westCoordinates(x, y))
+            spacesToCheck.add(southWestCoordinates(x, y))
+            spacesToCheck.add(northWestCoordinates(x, y))
+            spacesToCheck.add(northCoordinates(x, y))
+            spacesToCheck.add(southCoordinates(x, y))
         }
 
         spacesToCheck.forEach {
@@ -140,7 +156,7 @@ class DungeonGenerationSystem : EntitySystem() {
         return true
     }
 
-    fun northCoodinates(x: Int, y: Int): Coordinates {
+    fun northCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x, y + 1)
     }
 
@@ -148,27 +164,27 @@ class DungeonGenerationSystem : EntitySystem() {
         return Coordinates(x + 1, y + 1)
     }
 
-    fun southCoodinates(x: Int, y: Int): Coordinates {
+    fun southCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x, y - 1)
     }
 
-    fun southEastCoodinates(x: Int, y: Int): Coordinates {
+    fun southEastCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x + 1, y - 1)
     }
 
-    fun eastCoodinates(x: Int, y: Int): Coordinates {
+    fun eastCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x + 1, y)
     }
 
-    fun northWestCoodinates(x: Int, y: Int): Coordinates {
+    fun northWestCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x - 1, y + 1)
     }
 
-    fun westCoodinates(x: Int, y: Int): Coordinates {
+    fun westCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x - 1, y)
     }
 
-    fun southWestCoodinates(x: Int, y: Int): Coordinates {
+    fun southWestCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x - 1, y - 1)
     }
 
@@ -187,7 +203,10 @@ class DungeonGenerationSystem : EntitySystem() {
         return Room(coordinates, dimension)
     }
 
-    private fun createRandomRoom(roomWidth: Int, roomHeight: Int): Room {
+    private fun createRandomRoom(): Room {
+        var randomDimension = RoomSize.random()
+        val roomWidth = randomDimension.dimension.width
+        val roomHeight = randomDimension.dimension.height
         val coordinates = randomPosition(roomWidth, roomHeight)
         val dimension = Dimension(roomWidth, roomHeight)
         return Room(coordinates, dimension)
@@ -257,10 +276,4 @@ class DungeonGenerationSystem : EntitySystem() {
         }
         return true
     }
-
-    data class Room(val coordinates: Coordinates, val dimension: Dimension)
-
-    data class Dimension(val width: Int, val height: Int)
-
-    data class Coordinates(val x: Int, val y: Int)
 }
