@@ -3,6 +3,8 @@ package com.nonnulldev.anotherroom.system.passive
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.nonnulldev.anotherroom.component.BoundsComponent
 import com.nonnulldev.anotherroom.component.DimensionComponent
@@ -23,13 +25,18 @@ class DungeonGenerationSystem : EntitySystem() {
 
     private lateinit var engine: PooledEngine
 
-    override fun checkProcessing(): Boolean {
-        return false
-    }
-
     override fun addedToEngine(engine: Engine?) {
         this.engine = engine as PooledEngine
 
+        init(engine)
+    }
+
+    // TODO: uncomment when done using input processing to make this a static system
+//    override fun checkProcessing(): Boolean {
+//        return false
+//    }
+
+    private fun init(engine: PooledEngine) {
         val centerRoom = centerRoom(GameConfig.SMALL_ROOM_DIMENSION.toInt(), GameConfig.SMALL_ROOM_DIMENSION.toInt())
 
         val rooms = ArrayList<Room>()
@@ -46,10 +53,9 @@ class DungeonGenerationSystem : EntitySystem() {
             }
         }
 
-        // TODO: randomize paths and make sure there is a path everywhere
         loopDungeon { x, y ->
             var tileIsEarth = dungeon[x][y] == DungeonTiles.Earth
-            if (tileIsEarth){
+            if (tileIsEarth && isWithinBounds(x, y) && spaceInAnyDirectionForPath(x, y)) {
                 generatePaths(x, y)
             }
         }
@@ -81,8 +87,18 @@ class DungeonGenerationSystem : EntitySystem() {
         }
     }
 
-    // TODO: may not need this anymore, was used to check if
-    // space in any direction during random flood filling for paths
+    override fun update(deltaTime: Float) {
+        if(Gdx.input.isKeyPressed(Input.Keys.R)) {
+            dungeon = array2dOfDungeonTiles(GameConfig.WORLD_HEIGHT.toInt(), GameConfig.WORLD_WIDTH.toInt())
+            init(engine)
+        }
+    }
+
+    private fun isWithinBounds(x: Int, y: Int): Boolean {
+        return (x > 0 && x <= GameConfig.WORLD_WIDTH - 2f) &&
+                (y > 0 && y <= GameConfig.WORLD_HEIGHT -2f)
+    }
+
     private fun spaceInAnyDirectionForPath(x: Int, y: Int): Boolean {
         return enoughSpaceAhead(x, y, Direction.NORTH) ||
                 enoughSpaceAhead(x, y, Direction.SOUTH) ||
@@ -156,35 +172,35 @@ class DungeonGenerationSystem : EntitySystem() {
         return true
     }
 
-    fun northCoordinates(x: Int, y: Int): Coordinates {
+    private fun northCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x, y + 1)
     }
 
-    fun northEastCoordinates(x: Int, y: Int): Coordinates {
+    private fun northEastCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x + 1, y + 1)
     }
 
-    fun southCoordinates(x: Int, y: Int): Coordinates {
+    private fun southCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x, y - 1)
     }
 
-    fun southEastCoordinates(x: Int, y: Int): Coordinates {
+    private fun southEastCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x + 1, y - 1)
     }
 
-    fun eastCoordinates(x: Int, y: Int): Coordinates {
+    private fun eastCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x + 1, y)
     }
 
-    fun northWestCoordinates(x: Int, y: Int): Coordinates {
+    private fun northWestCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x - 1, y + 1)
     }
 
-    fun westCoordinates(x: Int, y: Int): Coordinates {
+    private fun westCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x - 1, y)
     }
 
-    fun southWestCoordinates(x: Int, y: Int): Coordinates {
+    private fun southWestCoordinates(x: Int, y: Int): Coordinates {
         return Coordinates(x - 1, y - 1)
     }
 
