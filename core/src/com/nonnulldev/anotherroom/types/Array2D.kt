@@ -1,9 +1,10 @@
 package com.nonnulldev.anotherroom.types
 
-import com.nonnulldev.anotherroom.enum.DungeonTiles
+import com.nonnulldev.anotherroom.data.DungeonTile
 
-fun array2dOfDungeonTiles(sizeOuter: Int, sizeInner: Int): Array<Array<DungeonTiles>>
-        = Array(sizeOuter) { Array<DungeonTiles>(sizeInner){ DungeonTiles.Earth } }
+fun array2dOfDungeonTiles(sizeOuter: Int, sizeInner: Int): Array<Array<DungeonTile>>
+        = Array(sizeOuter) { Array(sizeInner){ DungeonTile() } }
+
 
 
 

@@ -1,7 +1,8 @@
 package com.nonnulldev.anotherroom.enum
 
-enum class DungeonTiles {
+enum class DungeonTileTypes {
     Earth,
     Path,
-    Room
+    Room,
+    Door
 }

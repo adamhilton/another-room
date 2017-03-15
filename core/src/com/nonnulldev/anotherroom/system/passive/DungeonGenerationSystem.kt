@@ -10,20 +10,24 @@ import com.nonnulldev.anotherroom.component.BoundsComponent
 import com.nonnulldev.anotherroom.component.DimensionComponent
 import com.nonnulldev.anotherroom.component.PositionComponent
 import com.nonnulldev.anotherroom.config.GameConfig
-import com.nonnulldev.anotherroom.data.Coordinates
-import com.nonnulldev.anotherroom.data.Dimension
-import com.nonnulldev.anotherroom.data.Room
+import com.nonnulldev.anotherroom.data.*
 import com.nonnulldev.anotherroom.enum.Direction
-import com.nonnulldev.anotherroom.enum.DungeonTiles
+import com.nonnulldev.anotherroom.enum.DungeonTileTypes
 import com.nonnulldev.anotherroom.enum.RoomSize
 import com.nonnulldev.anotherroom.types.array2dOfDungeonTiles
 import java.util.*
+import java.util.ArrayList
+import kotlin.collections.HashMap
+
 
 class DungeonGenerationSystem : EntitySystem() {
 
-    private var dungeon = array2dOfDungeonTiles(GameConfig.WORLD_HEIGHT.toInt(), GameConfig.WORLD_WIDTH.toInt())
+    private var dungeon = Dungeon(array2dOfDungeonTiles(GameConfig.WORLD_HEIGHT.toInt(), GameConfig.WORLD_WIDTH.toInt()))
 
     private lateinit var engine: PooledEngine
+
+    private var regions = ArrayList<Int>()
+    private var mergedRegions = HashMap<Int, Int>()
 
     override fun addedToEngine(engine: Engine?) {
         this.engine = engine as PooledEngine
@@ -37,7 +41,7 @@ class DungeonGenerationSystem : EntitySystem() {
 //    }
 
     private fun init(engine: PooledEngine) {
-        val centerRoom = centerRoom(GameConfig.SMALL_ROOM_DIMENSION.toInt(), GameConfig.SMALL_ROOM_DIMENSION.toInt())
+//        val centerRoom = centerRoom(GameConfig.SMALL_ROOM_DIMENSION.toInt(), GameConfig.SMALL_ROOM_DIMENSION.toInt())
 
         val rooms = ArrayList<Room>()
 
@@ -46,7 +50,7 @@ class DungeonGenerationSystem : EntitySystem() {
             rooms.add(randomRoom)
         }
 
-        addRoom(centerRoom)
+//        addRoom(centerRoom)
         rooms.forEach {
             if (canBuildRoom(it)) {
                 addRoom(it)
@@ -54,27 +58,44 @@ class DungeonGenerationSystem : EntitySystem() {
         }
 
         loopDungeon { x, y ->
-            var tileIsEarth = dungeon[x][y] == DungeonTiles.Earth
+            val regionId = regions.size + 1
+            var tileIsEarth = dungeon.grid[x][y].type == DungeonTileTypes.Earth
             if (tileIsEarth && isWithinBounds(x, y) && spaceInAnyDirectionForPath(x, y)) {
-                generatePaths(x, y)
+                generatePaths(x, y, regionId)
             }
         }
 
-        for (x in 0..dungeon.lastIndex) {
-            for (y in 0..dungeon[x].lastIndex) {
 
-                var tile = dungeon[x][y]
+        // TODO: change to a finite number of tries and then if fails then rerun whole dungeon generation
+        val canPlaceConnector = Random()
+        while(!allRegionsAreMerged()) {
+            loopDungeon { x, y ->
+                val tile = dungeon.grid[x][y]
+                if (tile.type == DungeonTileTypes.Earth && isWithinBounds(x, y)) {
+                    // TODO: connectors are placed too predictably. Find a better way to place connectors on all sides of room
+                    if(canPlaceConnector.nextBoolean())
+                    placeConnector(x, y)
+                }
+            }
+        }
+
+        for (x in 0..dungeon.grid.lastIndex) {
+            for (y in 0..dungeon.grid[x].lastIndex) {
+
+                var tile = dungeon.grid[x][y]
 
                 val position = positionComponent(x.toFloat(), y.toFloat())
                 val dimension = dimensionComponent(1f, 1f)
                 val bounds = boundsComponent(position, dimension)
 
-                if (tile == DungeonTiles.Earth) {
+                if (tile.type == DungeonTileTypes.Earth) {
                     bounds.color = Color.CLEAR
-                } else if (tile == DungeonTiles.Room) {
+                } else if (tile.type == DungeonTileTypes.Room) {
                     bounds.color = Color.BLUE
-                } else if (tile == DungeonTiles.Path) {
+                } else if (tile.type == DungeonTileTypes.Path) {
                     bounds.color = Color.GOLD
+                } else if (tile.type == DungeonTileTypes.Door) {
+                    bounds.color = Color.GREEN
                 }
 
                 val entity = engine.createEntity()
@@ -87,9 +108,54 @@ class DungeonGenerationSystem : EntitySystem() {
         }
     }
 
+    private fun allRegionsAreMerged(): Boolean {
+        regions.forEach {
+            if (!mergedRegions.containsValue(it) && !mergedRegions.containsKey(it)) {
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun placeConnector(x: Int, y: Int) {
+        val tileToNorth = dungeon.grid[x][y + 1]
+        val tileToSouth = dungeon.grid[x][y - 1]
+        val tileToEast = dungeon.grid[x + 1][y]
+        val tileToWest = dungeon.grid[x - 1][y]
+
+        if(tileTypesCanHaveConnector(tileToNorth, tileToSouth)) {
+            mergedRegions[tileToNorth.regionId] = tileToSouth.regionId
+            dungeon.grid[x][y].type = DungeonTileTypes.Door
+        } else if (tileTypesCanHaveConnector(tileToEast, tileToWest)) {
+            mergedRegions[tileToEast.regionId] = tileToWest.regionId
+            dungeon.grid[x][y].type = DungeonTileTypes.Door
+        }
+    }
+
+    private fun tileTypesCanHaveConnector(firstTile: DungeonTile, secondTile: DungeonTile): Boolean {
+        if (firstTile.regionId == secondTile.regionId) {
+            return false
+        }
+        if (regionAlreadyMerged(firstTile.regionId, secondTile.regionId)) {
+            return false
+        }
+        if(firstTile.type == DungeonTileTypes.Room && secondTile.type == DungeonTileTypes.Room) {
+            return true
+        }
+        if(firstTile.type == DungeonTileTypes.Room && secondTile.type == DungeonTileTypes.Path) {
+            return true
+        }
+        return false
+    }
+
+    private fun regionAlreadyMerged(firstRegionId: Int, secondRegionId: Int): Boolean {
+        return (mergedRegions.contains(firstRegionId) || mergedRegions.containsValue(firstRegionId))
+                && (mergedRegions.contains(secondRegionId) || mergedRegions.containsValue(secondRegionId))
+    }
+
     override fun update(deltaTime: Float) {
         if(Gdx.input.isKeyPressed(Input.Keys.R)) {
-            dungeon = array2dOfDungeonTiles(GameConfig.WORLD_HEIGHT.toInt(), GameConfig.WORLD_WIDTH.toInt())
+            dungeon = Dungeon(array2dOfDungeonTiles(GameConfig.WORLD_HEIGHT.toInt(), GameConfig.WORLD_WIDTH.toInt()))
             init(engine)
         }
     }
@@ -106,21 +172,21 @@ class DungeonGenerationSystem : EntitySystem() {
                 enoughSpaceAhead(x, y, Direction.WEST)
     }
 
-    private fun generatePaths(x: Int, y: Int) {
-            visitNeighbor( x-1, y, Direction.WEST)
-            visitNeighbor( x+1, y, Direction.EAST)
-            visitNeighbor( x, y-1, Direction.SOUTH)
-            visitNeighbor( x, y+1, Direction.NORTH)
+    private fun generatePaths(x: Int, y: Int, regionId: Int) {
+            visitNeighbor( x-1, y, Direction.WEST, regionId)
+            visitNeighbor( x+1, y, Direction.EAST, regionId)
+            visitNeighbor( x, y-1, Direction.SOUTH, regionId)
+            visitNeighbor( x, y+1, Direction.NORTH, regionId)
     }
 
-    private fun visitNeighbor (x: Int, y: Int, direction: Direction) {
+    private fun visitNeighbor (x: Int, y: Int, direction: Direction, regionId: Int) {
         if (x < GameConfig.WALL_SIZE || x >= GameConfig.WORLD_WIDTH - GameConfig.WALL_SIZE)
             return
 
         if (y < GameConfig.WALL_SIZE || y >= GameConfig.WORLD_HEIGHT - GameConfig.WALL_SIZE)
             return
 
-        if (dungeon[x][y] != DungeonTiles.Earth ) {
+        if (dungeon.grid[x][y].type != DungeonTileTypes.Earth ) {
             return
         }
 
@@ -128,9 +194,15 @@ class DungeonGenerationSystem : EntitySystem() {
             return
         }
 
-        dungeon[x][y] = DungeonTiles.Path
+        var dungeonTile = dungeon.grid[x][y]
+        dungeonTile.regionId = regionId
+        dungeonTile.type = DungeonTileTypes.Path
 
-        generatePaths(x, y)
+        if (!regions.contains(regionId)) {
+            regions.add(regionId)
+        }
+
+        generatePaths(x, y, regionId)
     }
 
     private fun enoughSpaceAhead(x: Int, y: Int, direction: Direction): Boolean {
@@ -164,7 +236,7 @@ class DungeonGenerationSystem : EntitySystem() {
         }
 
         spacesToCheck.forEach {
-            if (dungeon[it.x][it.y] != DungeonTiles.Earth) {
+            if (dungeon.grid[it.x][it.y].type != DungeonTileTypes.Earth) {
                 return false
             }
         }
@@ -267,25 +339,30 @@ class DungeonGenerationSystem : EntitySystem() {
     }
 
     fun <T> loopDungeon(body: (x: Int, y: Int) -> T) {
-        for (x in 0..dungeon.lastIndex) {
-            for (y in 0..dungeon[x].lastIndex) {
+        for (x in 0..dungeon.grid.lastIndex) {
+            for (y in 0..dungeon.grid[x].lastIndex) {
                 body(x, y)
             }
         }
     }
 
     private fun addRoom(room: Room) {
+        val regionId = regions.size + 1
+        regions.add(regionId)
         for (roomX in 0..room.dimension.width - 1) {
-            for (roomY in 0..room.dimension.height - 1)
-                dungeon[room.coordinates.x + roomX][room.coordinates.y + roomY] = DungeonTiles.Room
+            for (roomY in 0..room.dimension.height - 1) {
+                val dungeonTile = dungeon.grid[room.coordinates.x + roomX][room.coordinates.y + roomY]
+                dungeonTile.regionId = regionId
+                dungeonTile.type = DungeonTileTypes.Room
+            }
         }
     }
 
     private fun canBuildRoom(room: Room): Boolean {
         for (roomX in 0..room.dimension.width + 2) {
             for (roomY in 0..room.dimension.height + 2) {
-                var tile = dungeon[room.coordinates.x + roomX - 2][room.coordinates.y + roomY - 2]
-                if (tile != DungeonTiles.Earth) {
+                var tile = dungeon.grid[room.coordinates.x + roomX - 2][room.coordinates.y + roomY - 2]
+                if (tile.type != DungeonTileTypes.Earth) {
                     return false
                 }
             }
