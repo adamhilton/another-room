@@ -1,4 +1,4 @@
-package com.nonnulldev.anotherroom.system.passive
+package com.nonnulldev.anotherroom.system.passive.generation
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
@@ -51,7 +51,7 @@ class PathGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
         if (y < GameConfig.WALL_SIZE || y >= GameConfig.WORLD_HEIGHT - GameConfig.WALL_SIZE)
             return
 
-        if (dungeon.grid[x][y].type != DungeonTileTypes.Earth ) {
+        if (dungeon.grid[x][y].type != DungeonTileTypes.Earth) {
             return
         }
 

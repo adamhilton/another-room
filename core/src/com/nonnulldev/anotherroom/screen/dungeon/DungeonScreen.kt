@@ -17,10 +17,12 @@ import com.nonnulldev.anotherroom.system.debug.DebugCameraSystem
 import com.nonnulldev.anotherroom.system.debug.DebugInputSystem
 import com.nonnulldev.anotherroom.system.debug.DebugRenderSystem
 import com.nonnulldev.anotherroom.system.debug.GridRenderSystem
-import com.nonnulldev.anotherroom.system.passive.DungeonGenerationSystem
+import com.nonnulldev.anotherroom.system.passive.generation.DungeonGenerationSystem
 import com.nonnulldev.anotherroom.util.GdxUtils
 
-class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter(), DungeonScreenInput.Listener {
+class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter(),
+        DungeonScreenInput.Listener,
+        DungeonGenerationSystem.Listener {
 
     private val log = Logger(AnotherRoomGame::class.java.name, Logger.DEBUG)
 
@@ -44,7 +46,7 @@ class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter(), Dungeo
 
     private fun addSystemsToEngine() {
         addDebugSystemsToEngine()
-        engine.addSystem(DungeonGenerationSystem())
+        engine.addSystem(DungeonGenerationSystem(this))
     }
 
     private fun addDebugSystemsToEngine() {
@@ -80,5 +82,9 @@ class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter(), Dungeo
         engine.clearPools()
         engine = PooledEngine()
         addSystemsToEngine()
+    }
+
+    override fun dungeonGenerationSystemFailed() {
+        refresh()
     }
 }

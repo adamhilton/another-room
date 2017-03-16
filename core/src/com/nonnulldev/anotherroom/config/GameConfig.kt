@@ -13,6 +13,7 @@ class GameConfig private constructor(){
         val WORLD_CENTER_Y = WORLD_HEIGHT / 2f // world units
 
         val ROOM_CREATION_ATTEMPTS = 1000
+        val REGION_MERGING_ATTEMPTS = 1000
 
         val SMALL_ROOM_DIMENSION = 3f
         val MEDIUM_ROOM_DIMENSION = 5f

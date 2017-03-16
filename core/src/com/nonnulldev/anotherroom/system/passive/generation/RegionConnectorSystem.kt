@@ -1,7 +1,9 @@
-package com.nonnulldev.anotherroom.system.passive
+package com.nonnulldev.anotherroom.system.passive.generation
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
+import com.badlogic.gdx.utils.Logger
+import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.data.Coordinates
 import com.nonnulldev.anotherroom.data.Dungeon
 import com.nonnulldev.anotherroom.data.DungeonTile
@@ -10,7 +12,9 @@ import com.nonnulldev.anotherroom.extension.isWithinWorldBounds
 import com.nonnulldev.anotherroom.types.loopDungeon
 import java.util.*
 
-class RegionConnectorSystem(private val dungeon: Dungeon) : EntitySystem() {
+class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: Listener) : EntitySystem() {
+
+    private val log = Logger(RegionConnectorSystem::class.simpleName, Logger.DEBUG)
 
     private var mergedRegions = HashMap<Int, Int>()
 
@@ -19,16 +23,21 @@ class RegionConnectorSystem(private val dungeon: Dungeon) : EntitySystem() {
     }
 
     override fun addedToEngine(engine: Engine?) {
-        val canPlaceConnector = Random()
-        while(!allRegionsAreMerged()) {
+        var attemptsToMergeRegions = GameConfig.REGION_MERGING_ATTEMPTS
+        while(!allRegionsAreMerged() && attemptsToMergeRegions > 0) {
+            log.debug("Merging region")
             loopDungeon(dungeon, { x, y ->
                 val tile = dungeon.grid[x][y]
                 if (tile.type == DungeonTileTypes.Earth && Coordinates(x, y).isWithinWorldBounds()) {
                     // TODO: connectors are placed too predictably. Find a better way to place connectors on all sides of room
-                    if(canPlaceConnector.nextBoolean())
-                        placeConnector(x, y)
+                    placeConnector(x, y)
                 }
             })
+            attemptsToMergeRegions--
+        }
+
+        if (!allRegionsAreMerged()) {
+            listener.regionConnectorSystemFailed()
         }
     }
 
@@ -75,5 +84,9 @@ class RegionConnectorSystem(private val dungeon: Dungeon) : EntitySystem() {
     private fun regionAlreadyMerged(firstRegionId: Int, secondRegionId: Int): Boolean {
         return (mergedRegions.contains(firstRegionId) || mergedRegions.containsValue(firstRegionId))
                 && (mergedRegions.contains(secondRegionId) || mergedRegions.containsValue(secondRegionId))
+    }
+
+    interface Listener {
+        fun regionConnectorSystemFailed()
     }
 }

@@ -1,4 +1,4 @@
-package com.nonnulldev.anotherroom.system.passive
+package com.nonnulldev.anotherroom.system.passive.generation
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
@@ -13,9 +13,9 @@ import com.nonnulldev.anotherroom.enum.DungeonTileTypes
 import com.nonnulldev.anotherroom.types.array2dOfDungeonTiles
 
 
-class DungeonGenerationSystem : EntitySystem() {
+class DungeonGenerationSystem(private val listener: Listener) : EntitySystem(), RegionConnectorSystem.Listener {
 
-    private var dungeon = Dungeon(array2dOfDungeonTiles(GameConfig.WORLD_HEIGHT.toInt(), GameConfig.WORLD_WIDTH.toInt()))
+    private var dungeon = Dungeon(array2dOfDungeonTiles(GameConfig.Companion.WORLD_HEIGHT.toInt(), GameConfig.Companion.WORLD_WIDTH.toInt()))
 
     private lateinit var engine: PooledEngine
 
@@ -33,7 +33,7 @@ class DungeonGenerationSystem : EntitySystem() {
     private fun runGenerationSystems() {
         engine.addSystem(RoomGenerationSystem(dungeon))
         engine.addSystem(PathGenerationSystem(dungeon))
-        engine.addSystem(RegionConnectorSystem(dungeon))
+        engine.addSystem(RegionConnectorSystem(dungeon, this))
         engine.addSystem(PathCleanupSystem(dungeon))
     }
 
@@ -67,6 +67,10 @@ class DungeonGenerationSystem : EntitySystem() {
         }
     }
 
+    override fun regionConnectorSystemFailed() {
+        listener.dungeonGenerationSystemFailed()
+    }
+
     private fun positionComponent(x: Float, y: Float): PositionComponent {
         val position = engine.createComponent(PositionComponent::class.java)
         position.x = x
@@ -86,5 +90,9 @@ class DungeonGenerationSystem : EntitySystem() {
         bounds.rectangle.setPosition(position.x, position.y)
         bounds.rectangle.setSize(dimension.width, dimension.height)
         return bounds
+    }
+
+    interface Listener {
+        fun dungeonGenerationSystemFailed()
     }
 }

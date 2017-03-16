@@ -1,4 +1,4 @@
-package com.nonnulldev.anotherroom.system.passive
+package com.nonnulldev.anotherroom.system.passive.generation
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
@@ -70,8 +70,8 @@ class RoomGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
 
     private fun centerRoom(roomWidth: Int, roomHeight: Int): Room {
         val coordinates = Coordinates(
-                GameConfig.WORLD_CENTER_X.toInt() - (roomWidth / 2),
-                GameConfig.WORLD_CENTER_Y.toInt() - (roomHeight / 2)
+                GameConfig.Companion.WORLD_CENTER_X.toInt() - (roomWidth / 2),
+                GameConfig.Companion.WORLD_CENTER_Y.toInt() - (roomHeight / 2)
         )
 
         val dimension = Dimension(
