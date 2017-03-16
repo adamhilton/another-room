@@ -1,137 +1,100 @@
 package com.nonnulldev.anotherroom.system.passive
 
-import com.badlogic.ashley.core.*
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.utils.Logger
-import com.nonnulldev.anotherroom.component.BoundsComponent
-import com.nonnulldev.anotherroom.component.DimensionComponent
-import com.nonnulldev.anotherroom.component.PositionComponent
-import com.nonnulldev.anotherroom.component.RoomComponent
+import com.badlogic.ashley.core.Engine
+import com.badlogic.ashley.core.EntitySystem
 import com.nonnulldev.anotherroom.config.GameConfig
+import com.nonnulldev.anotherroom.data.Coordinates
+import com.nonnulldev.anotherroom.data.Dimension
+import com.nonnulldev.anotherroom.data.Dungeon
+import com.nonnulldev.anotherroom.data.Room
+import com.nonnulldev.anotherroom.enum.DungeonTileTypes
+import com.nonnulldev.anotherroom.enum.RoomSize
+import java.util.*
 
-class RoomGenerationSystem : EntitySystem() {
-
-    private val log = Logger(RoomGenerationSystem::class.simpleName, Logger.DEBUG)
-
-    lateinit private var engine: PooledEngine
-
-    private var validRoomsWithWalls = ArrayList<Rectangle>()
+class RoomGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
 
     override fun checkProcessing(): Boolean {
         return false
     }
 
     override fun addedToEngine(engine: Engine?) {
-        this.engine = engine as PooledEngine
-        createRooms()
-    }
+        val rooms = ArrayList<Room>()
 
-    fun createRooms() {
-        validRoomsWithWalls.add(createFirstRoom(GameConfig.SMALL_ROOM_DIMENSION, GameConfig.SMALL_ROOM_DIMENSION))
+        val centerRoom = centerRoom(GameConfig.SMALL_ROOM_DIMENSION.toInt(), GameConfig.SMALL_ROOM_DIMENSION.toInt())
+        rooms.add(centerRoom)
 
-        generateRooms(GameConfig.LARGE_ROOM_DIMENSION, GameConfig.LARGE_ROOM_DIMENSION)
-        generateRooms(GameConfig.SMALL_ROOM_DIMENSION, GameConfig.SMALL_ROOM_DIMENSION)
-        generateRooms(GameConfig.MEDIUM_ROOM_DIMENSION, GameConfig.MEDIUM_ROOM_DIMENSION)
+        for (numOfRoomGenerationAttempts in 0..GameConfig.ROOM_CREATION_ATTEMPTS) {
+            val randomRoom = createRandomRoom()
+            rooms.add(randomRoom)
+        }
 
-        validRoomsWithWalls.forEach {
-            val roomEntity = engine.createEntity()
-
-            val position = positionComponent(it)
-            val dimension = dimensionComponentWithRoomBuffer(it)
-            val bounds = boundsComponent(position, dimension)
-            bounds.color = Color.SCARLET
-            val room = roomComponent()
-
-            roomEntity.add(position)
-            roomEntity.add(dimension)
-            roomEntity.add(bounds)
-            roomEntity.add(room)
-
-            engine.addEntity(roomEntity)
+        rooms.forEach {
+            if (canBuildRoom(it)) {
+                addRoom(it)
+            }
         }
     }
 
-    private fun generateRooms(roomWidth: Float, roomHeight: Float) {
-        for (i in 0..GameConfig.ROOM_CREATION_ATTEMPTS) {
+    private fun addRoom(room: Room) {
+        val regionId = dungeon.regions.size + 1
+        dungeon.regions.add(regionId)
+        for (roomX in 0..room.dimension.width - 1) {
+            for (roomY in 0..room.dimension.height - 1) {
+                val dungeonTile = dungeon.grid[room.coordinates.x + roomX][room.coordinates.y + roomY]
+                dungeonTile.regionId = regionId
+                dungeonTile.type = DungeonTileTypes.Room
+            }
+        }
+    }
 
-            var rectangle = Rectangle()
-            val roomWidthWithWalls = roomWidth + GameConfig.ROOM_TO_ROOM_BUFFER
-            val roomHeightWithWalls = roomHeight + GameConfig.ROOM_TO_ROOM_BUFFER
-
-            rectangle.setSize(
-                    roomWidthWithWalls,
-                    roomHeightWithWalls
-            )
-
-            setRandomPosition(rectangle)
-
-            var roomCanNotBePlaced = false
-            validRoomsWithWalls.forEach {
-                if (rectangle.overlaps(it) || it.overlaps(rectangle)) {
-                    roomCanNotBePlaced = true
+    private fun canBuildRoom(room: Room): Boolean {
+        for (roomX in 0..room.dimension.width + 2) {
+            for (roomY in 0..room.dimension.height + 2) {
+                var tile = dungeon.grid[room.coordinates.x + roomX - 2][room.coordinates.y + roomY - 2]
+                if (tile.type != DungeonTileTypes.Earth) {
+                    return false
                 }
             }
-            if (!roomCanNotBePlaced) {
-                validRoomsWithWalls.add(rectangle)
-            }
         }
+        return true
     }
 
-    private fun positionComponent(rectangle: Rectangle): PositionComponent {
-        val position = engine.createComponent(PositionComponent::class.java)
-        position.x = rectangle.x
-        position.y = rectangle.y
-        return position
+    private fun createRandomRoom(): Room {
+        var randomDimension = RoomSize.random()
+        val roomWidth = randomDimension.dimension.width
+        val roomHeight = randomDimension.dimension.height
+        val coordinates = randomPosition(roomWidth, roomHeight)
+        val dimension = Dimension(roomWidth, roomHeight)
+        return Room(coordinates, dimension)
     }
 
-    private fun dimensionComponent(rectangle: Rectangle): DimensionComponent {
-        val dimension = engine.createComponent(DimensionComponent::class.java)
-        dimension.width = rectangle.width
-        dimension.height = rectangle.height
-        return dimension
-    }
-
-    private fun dimensionComponentWithRoomBuffer(rectangle: Rectangle): DimensionComponent {
-        val dimension = dimensionComponent(rectangle)
-        dimension.width += -GameConfig.ROOM_TO_ROOM_BUFFER
-        dimension.height += -GameConfig.ROOM_TO_ROOM_BUFFER
-        return dimension
-    }
-
-    private fun boundsComponent(position: PositionComponent, dimension: DimensionComponent): BoundsComponent {
-        val bounds = engine.createComponent(BoundsComponent::class.java)
-        bounds.rectangle.setPosition(position.x, position.y)
-        bounds.rectangle.setSize(dimension.width, dimension.height)
-        return bounds
-    }
-
-    private fun roomComponent(): RoomComponent {
-        val room = engine.createComponent(RoomComponent::class.java)
-        return room
-    }
-
-    private fun setRandomPosition(rectangle: Rectangle) {
-        val maxX = GameConfig.WORLD_WIDTH - rectangle.width - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
-        val minX = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
-        val rectangleX = Math.round(MathUtils.random(
-                minX, maxX)).toFloat()
-
-        val maxY = GameConfig.WORLD_HEIGHT - rectangle.width - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
-        val minY = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
-        val rectangleY = Math.round(MathUtils.random(
-                minY, maxY)).toFloat()
-
-        rectangle.setPosition(rectangleX, rectangleY)
-    }
-
-    private fun createFirstRoom(roomWidth: Float, roomHeight: Float): Rectangle {
-        return Rectangle(
-                GameConfig.WORLD_CENTER_X - (roomWidth / 2f),
-                GameConfig.WORLD_CENTER_Y - (roomHeight / 2f),
-                roomWidth + GameConfig.ROOM_TO_ROOM_BUFFER,
-                roomHeight + GameConfig.ROOM_TO_ROOM_BUFFER
+    private fun centerRoom(roomWidth: Int, roomHeight: Int): Room {
+        val coordinates = Coordinates(
+                GameConfig.WORLD_CENTER_X.toInt() - (roomWidth / 2),
+                GameConfig.WORLD_CENTER_Y.toInt() - (roomHeight / 2)
         )
+
+        val dimension = Dimension(
+                roomWidth,
+                roomHeight
+        )
+
+        return Room(coordinates, dimension)
+    }
+
+    fun randomPosition(width: Int, height: Int): Coordinates {
+        val random = Random()
+
+        val maxX = GameConfig.WORLD_WIDTH - width - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
+        val minX = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
+
+        var rectangleX = minX+random.nextInt(((maxX-minX)/2).toInt()) *2
+
+        val maxY = GameConfig.WORLD_HEIGHT - height - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
+        val minY = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
+
+        var rectangleY = minY+random.nextInt(((maxY-minY)/2).toInt()) *2
+
+        return Coordinates(rectangleX.toInt(), rectangleY.toInt())
     }
 }
