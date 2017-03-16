@@ -1,14 +1,18 @@
 package com.nonnulldev.anotherroom.screen.dungeon
 
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.ScreenAdapter
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.utils.Logger
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.nonnulldev.anotherroom.AnotherRoomGame
 import com.nonnulldev.anotherroom.config.GameConfig
+import com.nonnulldev.anotherroom.input.DungeonScreenInput
 import com.nonnulldev.anotherroom.system.debug.DebugCameraSystem
 import com.nonnulldev.anotherroom.system.debug.DebugInputSystem
 import com.nonnulldev.anotherroom.system.debug.DebugRenderSystem
@@ -16,7 +20,7 @@ import com.nonnulldev.anotherroom.system.debug.GridRenderSystem
 import com.nonnulldev.anotherroom.system.passive.DungeonGenerationSystem
 import com.nonnulldev.anotherroom.util.GdxUtils
 
-class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter() {
+class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter(), DungeonScreenInput.Listener {
 
     private val log = Logger(AnotherRoomGame::class.java.name, Logger.DEBUG)
 
@@ -34,13 +38,12 @@ class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter() {
         engine = PooledEngine()
 
         addSystemsToEngine()
+
+        Gdx.input.inputProcessor = DungeonScreenInput(this)
     }
 
     private fun addSystemsToEngine() {
         addDebugSystemsToEngine()
-//        engine.addSystem(RoomGenerationSystem())
-//        engine.addSystem(DoorGenerationSystem())
-//        engine.addSystem(PathGenerationSystem())
         engine.addSystem(DungeonGenerationSystem())
     }
 
@@ -71,5 +74,11 @@ class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter() {
     override fun dispose() {
         renderer.dispose()
         engine.removeAllEntities()
+    }
+
+    override fun refresh() {
+        engine.clearPools()
+        engine = PooledEngine()
+        addSystemsToEngine()
     }
 }

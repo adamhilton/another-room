@@ -3,8 +3,6 @@ package com.nonnulldev.anotherroom.system.passive
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.PooledEngine
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.nonnulldev.anotherroom.component.BoundsComponent
 import com.nonnulldev.anotherroom.component.DimensionComponent
@@ -28,14 +26,18 @@ class DungeonGenerationSystem : EntitySystem() {
     override fun addedToEngine(engine: Engine?) {
         this.engine = engine as PooledEngine
 
+        runGenerationSystems()
+        processEntities()
+    }
+
+    private fun runGenerationSystems() {
         engine.addSystem(RoomGenerationSystem(dungeon))
         engine.addSystem(PathGenerationSystem(dungeon))
         engine.addSystem(RegionConnectorSystem(dungeon))
-
-        processEntities(engine)
+        engine.addSystem(PathCleanupSystem(dungeon))
     }
 
-    private fun processEntities(engine: PooledEngine) {
+    private fun processEntities() {
         for (x in 0..dungeon.grid.lastIndex) {
             for (y in 0..dungeon.grid[x].lastIndex) {
 
@@ -62,13 +64,6 @@ class DungeonGenerationSystem : EntitySystem() {
 
                 engine.addEntity(entity)
             }
-        }
-    }
-
-    override fun update(deltaTime: Float) {
-        if(Gdx.input.isKeyPressed(Input.Keys.R)) {
-            dungeon = Dungeon(array2dOfDungeonTiles(GameConfig.WORLD_HEIGHT.toInt(), GameConfig.WORLD_WIDTH.toInt()))
-            processEntities(engine)
         }
     }
 
