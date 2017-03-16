@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.utils.Logger
 import com.nonnulldev.anotherroom.component.BoundsComponent
 import com.nonnulldev.anotherroom.component.DimensionComponent
 import com.nonnulldev.anotherroom.component.PositionComponent
@@ -14,6 +15,8 @@ import com.nonnulldev.anotherroom.types.array2dOfDungeonTiles
 
 
 class DungeonGenerationSystem(private val listener: Listener) : EntitySystem(), RegionConnectorSystem.Listener {
+
+    private val log = Logger(DungeonGenerationSystem::class.simpleName, Logger.DEBUG)
 
     private var dungeon = Dungeon(array2dOfDungeonTiles(GameConfig.Companion.WORLD_HEIGHT.toInt(), GameConfig.Companion.WORLD_WIDTH.toInt()))
 
@@ -35,6 +38,11 @@ class DungeonGenerationSystem(private val listener: Listener) : EntitySystem(), 
         engine.addSystem(PathGenerationSystem(dungeon))
         engine.addSystem(RegionConnectorSystem(dungeon, this))
         engine.addSystem(PathCleanupSystem(dungeon))
+
+        log.debug("Region count: ${dungeon.regions.count()}")
+        dungeon.regions.forEach {
+            log.debug("Region: $it")
+        }
     }
 
     private fun processEntities() {

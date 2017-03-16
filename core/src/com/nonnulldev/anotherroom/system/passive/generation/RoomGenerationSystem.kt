@@ -20,9 +20,6 @@ class RoomGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
     override fun addedToEngine(engine: Engine?) {
         val rooms = ArrayList<Room>()
 
-        val centerRoom = centerRoom(GameConfig.SMALL_ROOM_DIMENSION.toInt(), GameConfig.SMALL_ROOM_DIMENSION.toInt())
-        rooms.add(centerRoom)
-
         for (numOfRoomGenerationAttempts in 0..GameConfig.ROOM_CREATION_ATTEMPTS) {
             val randomRoom = createRandomRoom()
             rooms.add(randomRoom)
@@ -68,29 +65,15 @@ class RoomGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
         return Room(coordinates, dimension)
     }
 
-    private fun centerRoom(roomWidth: Int, roomHeight: Int): Room {
-        val coordinates = Coordinates(
-                GameConfig.Companion.WORLD_CENTER_X.toInt() - (roomWidth / 2),
-                GameConfig.Companion.WORLD_CENTER_Y.toInt() - (roomHeight / 2)
-        )
-
-        val dimension = Dimension(
-                roomWidth,
-                roomHeight
-        )
-
-        return Room(coordinates, dimension)
-    }
-
     fun randomPosition(width: Int, height: Int): Coordinates {
         val random = Random()
 
-        val maxX = GameConfig.WORLD_WIDTH - width - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
+        val maxX = GameConfig.WORLD_WIDTH - width - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER + 2
         val minX = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
 
         var rectangleX = minX+random.nextInt(((maxX-minX)/2).toInt()) *2
 
-        val maxY = GameConfig.WORLD_HEIGHT - height - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
+        val maxY = GameConfig.WORLD_HEIGHT - height - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER + 2
         val minY = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
 
         var rectangleY = minY+random.nextInt(((maxY-minY)/2).toInt()) *2
