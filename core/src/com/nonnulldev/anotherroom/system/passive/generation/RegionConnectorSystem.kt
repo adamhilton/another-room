@@ -75,6 +75,7 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
 
     private fun allRegionsAreMerged(): Boolean {
         dungeon.regions.forEach {
+            // TODO: This needs to better check whether all regions are merged or not
             if (!mergedRegions.containsValue(it) && !mergedRegions.containsKey(it)) {
                 return false
             }
