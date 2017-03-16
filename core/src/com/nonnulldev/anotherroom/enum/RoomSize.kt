@@ -1,16 +1,18 @@
 package com.nonnulldev.anotherroom.enum
 
-import com.nonnulldev.anotherroom.config.GameConfig.Companion.LARGE_ROOM_DIMENSION
-import com.nonnulldev.anotherroom.config.GameConfig.Companion.MEDIUM_ROOM_DIMENSION
-import com.nonnulldev.anotherroom.config.GameConfig.Companion.SMALL_ROOM_DIMENSION
 import com.nonnulldev.anotherroom.data.Dimension
 import java.util.*
 
 
 enum class RoomSize(val dimension: Dimension) {
-    SMALL(Dimension(SMALL_ROOM_DIMENSION.toInt(), MEDIUM_ROOM_DIMENSION.toInt())),
-    MEDIUM(Dimension(MEDIUM_ROOM_DIMENSION.toInt(), MEDIUM_ROOM_DIMENSION.toInt())),
-    LARGE(Dimension(LARGE_ROOM_DIMENSION.toInt(), MEDIUM_ROOM_DIMENSION.toInt()));
+    SMALL(Dimension(3, 3)),
+    SMALL_MEDIUM(Dimension(3, 5)),
+    SMALL_LARGE(Dimension(3, 7)),
+    MEDIUM(Dimension(5, 5)),
+    MEDIUM_SMALL(Dimension(5, 3)),
+    MEDIUM_LARGE(Dimension(5, 7)),
+    LARGE(Dimension(7, 7)),
+    HUGE(Dimension(9, 9));
 
     companion object {
         private val random = Random()
