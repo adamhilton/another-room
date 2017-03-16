@@ -42,14 +42,7 @@ class PathCleanupSystem(private val dungeon: Dungeon) : EntitySystem() {
         return neighbors <= 1
     }
 
-    private fun removePaths(x: Int, y: Int) {
-        visitNeighbor( x-1, y)
-        visitNeighbor( x+1, y)
-        visitNeighbor( x, y-1)
-        visitNeighbor( x, y+1)
-    }
-
-    private fun visitNeighbor (x: Int, y: Int) {
+    private fun removePath(x: Int, y: Int) {
 
         if (x < GameConfig.WALL_SIZE || x >= GameConfig.WORLD_WIDTH - GameConfig.WALL_SIZE)
             return
@@ -57,23 +50,17 @@ class PathCleanupSystem(private val dungeon: Dungeon) : EntitySystem() {
         if (y < GameConfig.WALL_SIZE || y >= GameConfig.WORLD_HEIGHT - GameConfig.WALL_SIZE)
             return
 
-        if (dungeon.grid[x][y].type != DungeonTileTypes.Path) {
-            return
-        }
-
-        removePath(x, y)
-
-        removePaths(x, y)
-    }
-
-    private fun removePath(x: Int, y: Int) {
-
-        if (!isDeadEnd(x, y)) {
+        if (dungeon.grid[x][y].type != DungeonTileTypes.Path || !isDeadEnd(x, y)) {
             return
         }
 
         var dungeonTile = dungeon.grid[x][y]
         dungeonTile.regionId = 0
         dungeonTile.type = DungeonTileTypes.Earth
+
+        removePath( x-1, y)
+        removePath( x+1, y)
+        removePath( x, y-1)
+        removePath( x, y+1)
     }
 }
