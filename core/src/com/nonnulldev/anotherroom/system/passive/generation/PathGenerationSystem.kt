@@ -3,8 +3,7 @@ package com.nonnulldev.anotherroom.system.passive.generation
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
 import com.nonnulldev.anotherroom.config.GameConfig
-import com.nonnulldev.anotherroom.data.Coordinates
-import com.nonnulldev.anotherroom.data.Dungeon
+import com.nonnulldev.anotherroom.data.*
 import com.nonnulldev.anotherroom.enum.Direction
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
 import com.nonnulldev.anotherroom.extension.isWithinWorldBounds
@@ -22,44 +21,45 @@ class PathGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
 
 
         loopDungeon(dungeon, { x, y ->
+            val coordinates = Coordinates(x, y)
             val regionId = dungeon.regions.size + 1
             var tileIsEarth = dungeon.grid[x][y].type == DungeonTileTypes.Earth
-            if (tileIsEarth && Coordinates(x, y).isWithinWorldBounds() && spaceInAnyDirectionForPath(x, y)) {
-                generatePaths(x, y, regionId)
+            if (tileIsEarth && coordinates.isWithinWorldBounds() && spaceInAnyDirectionForPath(coordinates)) {
+                generatePaths(coordinates, regionId)
             }
         })
     }
 
-    private fun spaceInAnyDirectionForPath(x: Int, y: Int): Boolean {
-        return enoughSpaceAhead(x, y, Direction.NORTH) ||
-                enoughSpaceAhead(x, y, Direction.SOUTH) ||
-                enoughSpaceAhead(x, y, Direction.EAST) ||
-                enoughSpaceAhead(x, y, Direction.WEST)
+    private fun spaceInAnyDirectionForPath(coordinates: Coordinates): Boolean {
+        return enoughSpaceAhead(coordinates, Direction.NORTH) ||
+                enoughSpaceAhead(coordinates, Direction.SOUTH) ||
+                enoughSpaceAhead(coordinates, Direction.EAST) ||
+                enoughSpaceAhead(coordinates, Direction.WEST)
     }
 
-    private fun generatePaths(x: Int, y: Int, regionId: Int) {
-        visitNeighbor( x-1, y, Direction.WEST, regionId)
-        visitNeighbor( x+1, y, Direction.EAST, regionId)
-        visitNeighbor( x, y-1, Direction.SOUTH, regionId)
-        visitNeighbor( x, y+1, Direction.NORTH, regionId)
+    private fun generatePaths(coordinates: Coordinates, regionId: Int) {
+        visitNeighbor(coordinates.west(), Direction.WEST, regionId)
+        visitNeighbor(coordinates.east(), Direction.EAST, regionId)
+        visitNeighbor(coordinates.south(), Direction.SOUTH, regionId)
+        visitNeighbor(coordinates.north(), Direction.NORTH, regionId)
     }
 
-    private fun visitNeighbor (x: Int, y: Int, direction: Direction, regionId: Int) {
-        if (x < GameConfig.WALL_SIZE || x >= GameConfig.WORLD_WIDTH - GameConfig.WALL_SIZE)
+    private fun visitNeighbor (coordinates: Coordinates, direction: Direction, regionId: Int) {
+        if (coordinates.x < GameConfig.WALL_SIZE || coordinates.x >= GameConfig.WORLD_WIDTH - GameConfig.WALL_SIZE)
             return
 
-        if (y < GameConfig.WALL_SIZE || y >= GameConfig.WORLD_HEIGHT - GameConfig.WALL_SIZE)
+        if (coordinates.y < GameConfig.WALL_SIZE || coordinates.y >= GameConfig.WORLD_HEIGHT - GameConfig.WALL_SIZE)
             return
 
-        if (dungeon.grid[x][y].type != DungeonTileTypes.Earth) {
+        var dungeonTile = dungeon.grid.get(coordinates)
+        if (dungeonTile.type != DungeonTileTypes.Earth) {
             return
         }
 
-        if (!enoughSpaceAhead(x, y, direction)) {
+        if (!enoughSpaceAhead(coordinates, direction)) {
             return
         }
 
-        var dungeonTile = dungeon.grid[x][y]
         dungeonTile.regionId = regionId
         dungeonTile.type = DungeonTileTypes.Path
 
@@ -67,78 +67,44 @@ class PathGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
             dungeon.regions.add(regionId)
         }
 
-        generatePaths(x, y, regionId)
+        generatePaths(coordinates, regionId)
     }
 
-    private fun enoughSpaceAhead(x: Int, y: Int, direction: Direction): Boolean {
-
+    private fun enoughSpaceAhead(coordinates: Coordinates, direction: Direction): Boolean {
         var spacesToCheck = ArrayList<Coordinates>()
 
         if (direction == Direction.NORTH) {
-            spacesToCheck.add(northCoordinates(x, y))
-            spacesToCheck.add(northEastCoordinates(x, y))
-            spacesToCheck.add(northWestCoordinates(x, y))
-            spacesToCheck.add(eastCoordinates(x, y))
-            spacesToCheck.add(westCoordinates(x, y))
+            spacesToCheck.add(coordinates.north())
+            spacesToCheck.add(coordinates.northEast())
+            spacesToCheck.add(coordinates.northWest())
+            spacesToCheck.add(coordinates.east())
+            spacesToCheck.add(coordinates.west())
         } else if (direction == Direction.SOUTH) {
-            spacesToCheck.add(southCoordinates(x, y))
-            spacesToCheck.add(southEastCoordinates(x, y))
-            spacesToCheck.add(southWestCoordinates(x, y))
-            spacesToCheck.add(eastCoordinates(x, y))
-            spacesToCheck.add(westCoordinates(x, y))
+            spacesToCheck.add(coordinates.south())
+            spacesToCheck.add(coordinates.southEast())
+            spacesToCheck.add(coordinates.southWest())
+            spacesToCheck.add(coordinates.east())
+            spacesToCheck.add(coordinates.west())
         } else if (direction == Direction.EAST) {
-            spacesToCheck.add(eastCoordinates(x, y))
-            spacesToCheck.add(southEastCoordinates(x, y))
-            spacesToCheck.add(northEastCoordinates(x, y))
-            spacesToCheck.add(northCoordinates(x, y))
-            spacesToCheck.add(southCoordinates(x, y))
+            spacesToCheck.add(coordinates.east())
+            spacesToCheck.add(coordinates.southEast())
+            spacesToCheck.add(coordinates.northEast())
+            spacesToCheck.add(coordinates.north())
+            spacesToCheck.add(coordinates.south())
         } else if (direction == Direction.WEST) {
-            spacesToCheck.add(westCoordinates(x, y))
-            spacesToCheck.add(southWestCoordinates(x, y))
-            spacesToCheck.add(northWestCoordinates(x, y))
-            spacesToCheck.add(northCoordinates(x, y))
-            spacesToCheck.add(southCoordinates(x, y))
+            spacesToCheck.add(coordinates.west())
+            spacesToCheck.add(coordinates.southWest())
+            spacesToCheck.add(coordinates.northWest())
+            spacesToCheck.add(coordinates.north())
+            spacesToCheck.add(coordinates.south())
         }
 
         spacesToCheck.forEach {
-            if (dungeon.grid[it.x][it.y].type != DungeonTileTypes.Earth) {
+            val coordinates = Coordinates(it.x, it.y)
+            if (dungeon.grid.get(coordinates).type != DungeonTileTypes.Earth) {
                 return false
             }
         }
-
         return true
     }
-
-    private fun northCoordinates(x: Int, y: Int): Coordinates {
-        return Coordinates(x, y + 1)
-    }
-
-    private fun northEastCoordinates(x: Int, y: Int): Coordinates {
-        return Coordinates(x + 1, y + 1)
-    }
-
-    private fun southCoordinates(x: Int, y: Int): Coordinates {
-        return Coordinates(x, y - 1)
-    }
-
-    private fun southEastCoordinates(x: Int, y: Int): Coordinates {
-        return Coordinates(x + 1, y - 1)
-    }
-
-    private fun eastCoordinates(x: Int, y: Int): Coordinates {
-        return Coordinates(x + 1, y)
-    }
-
-    private fun northWestCoordinates(x: Int, y: Int): Coordinates {
-        return Coordinates(x - 1, y + 1)
-    }
-
-    private fun westCoordinates(x: Int, y: Int): Coordinates {
-        return Coordinates(x - 1, y)
-    }
-
-    private fun southWestCoordinates(x: Int, y: Int): Coordinates {
-        return Coordinates(x - 1, y - 1)
-    }
-
 }
