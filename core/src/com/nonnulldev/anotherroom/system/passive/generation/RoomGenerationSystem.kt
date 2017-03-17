@@ -2,6 +2,7 @@ package com.nonnulldev.anotherroom.system.passive.generation
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
+import com.badlogic.gdx.math.MathUtils
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.data.Coordinates
 import com.nonnulldev.anotherroom.data.Dimension
@@ -9,6 +10,7 @@ import com.nonnulldev.anotherroom.data.Dungeon
 import com.nonnulldev.anotherroom.data.Room
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
 import com.nonnulldev.anotherroom.enum.RoomSize
+import com.sun.org.apache.xpath.internal.operations.Bool
 import java.util.*
 
 class RoomGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
@@ -66,18 +68,25 @@ class RoomGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
     }
 
     fun randomPosition(width: Int, height: Int): Coordinates {
-        val random = Random()
-
         val maxX = GameConfig.WORLD_WIDTH - width - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER + 2
         val minX = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
 
-        var rectangleX = minX+random.nextInt(((maxX-minX)/2).toInt()) *2
+        var rectangleX = getOddPosition(minX.toInt(), maxX.toInt())
 
         val maxY = GameConfig.WORLD_HEIGHT - height - GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER + 2
         val minY = GameConfig.ROOM_TO_EDGE_OF_MAP_BUFFER
 
-        var rectangleY = minY+random.nextInt(((maxY-minY)/2).toInt()) *2
+        var rectangleY = getOddPosition(minY.toInt(), maxY.toInt())
 
-        return Coordinates(rectangleX.toInt(), rectangleY.toInt())
+        return Coordinates(rectangleX, rectangleY)
+    }
+
+    fun getOddPosition(min: Int, max: Int): Int {
+        while(true) {
+            val num = MathUtils.random(min, max)
+            if (num % 2 != 0) {
+                return num
+            }
+        }
     }
 }

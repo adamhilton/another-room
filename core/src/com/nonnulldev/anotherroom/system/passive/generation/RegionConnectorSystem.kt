@@ -89,6 +89,10 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
         val tileToEast = dungeon.grid.get(coordinates.east())
         val tileToWest = dungeon.grid.get(coordinates.west())
 
+        if (connectorIsNearTile(tileToNorth, tileToSouth, tileToEast, tileToWest)) {
+            return
+        }
+
         if(tilesCanHaveConnector(tileToNorth, tileToSouth)) {
             mergedRegions[tileToNorth.regionId] = tileToSouth.regionId
             dungeon.grid.get(coordinates).type = DungeonTileTypes.Door
@@ -98,6 +102,13 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
             dungeon.grid.get(coordinates).type = DungeonTileTypes.Door
             placedConnectors.add(coordinates)
         }
+    }
+
+    private fun connectorIsNearTile(tileToNorth: DungeonTile, tileToSouth: DungeonTile, tileToEast: DungeonTile, tileToWest: DungeonTile): Boolean {
+        return tileToNorth.type == DungeonTileTypes.Door ||
+                tileToEast.type == DungeonTileTypes.Door ||
+                tileToWest.type == DungeonTileTypes.Door ||
+                tileToSouth.type == DungeonTileTypes.Door
     }
 
     private fun connectorIsValid(coordinates: Coordinates): Boolean {
@@ -117,6 +128,10 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
         }
 
         if (regionAlreadyMerged(firstTile.regionId, secondTile.regionId)) {
+            return false
+        }
+
+        if (firstTile.type == DungeonTileTypes.Door || secondTile.type == DungeonTileTypes.Door) {
             return false
         }
 

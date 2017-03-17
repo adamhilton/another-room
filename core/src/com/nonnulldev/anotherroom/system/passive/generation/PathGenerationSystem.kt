@@ -100,8 +100,7 @@ class PathGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
         }
 
         spacesToCheck.forEach {
-            val coordinates = Coordinates(it.x, it.y)
-            if (dungeon.grid.get(coordinates).type != DungeonTileTypes.Earth) {
+            if (dungeon.grid.get(it).type != DungeonTileTypes.Earth) {
                 return false
             }
         }
