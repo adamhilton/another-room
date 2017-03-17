@@ -6,7 +6,7 @@ import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.data.*
 import com.nonnulldev.anotherroom.enum.Direction
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
-import com.nonnulldev.anotherroom.extension.isWithinWorldBounds
+import com.nonnulldev.anotherroom.extension.areWithinWorldBounds
 import com.nonnulldev.anotherroom.types.loopDungeon
 import java.util.ArrayList
 
@@ -24,7 +24,7 @@ class PathGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
             val coordinates = Coordinates(x, y)
             val regionId = dungeon.regions.size + 1
             var tileIsEarth = dungeon.grid[x][y].type == DungeonTileTypes.Earth
-            if (tileIsEarth && coordinates.isWithinWorldBounds() && spaceInAnyDirectionForPath(coordinates)) {
+            if (tileIsEarth && coordinates.areWithinWorldBounds() && spaceInAnyDirectionForPath(coordinates)) {
                 generatePaths(coordinates, regionId)
             }
         })

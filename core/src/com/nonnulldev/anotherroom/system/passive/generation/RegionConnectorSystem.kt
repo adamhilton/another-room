@@ -4,11 +4,9 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.utils.Logger
 import com.nonnulldev.anotherroom.config.GameConfig
-import com.nonnulldev.anotherroom.data.Coordinates
-import com.nonnulldev.anotherroom.data.Dungeon
-import com.nonnulldev.anotherroom.data.DungeonTile
+import com.nonnulldev.anotherroom.data.*
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
-import com.nonnulldev.anotherroom.extension.isWithinWorldBounds
+import com.nonnulldev.anotherroom.extension.areWithinWorldBounds
 import com.nonnulldev.anotherroom.types.loopDungeon
 import java.util.*
 import kotlin.collections.ArrayList
@@ -30,8 +28,9 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
         placedConnectors = ArrayList<Coordinates>()
 
         loopDungeon(dungeon, { x, y ->
-            if (Coordinates(x, y).isWithinWorldBounds() && connectorIsValid(x, y)) {
-                availableConnectors.add(Coordinates(x, y))
+            val coordinates = Coordinates(x, y)
+            if (coordinates.areWithinWorldBounds() && connectorIsValid(coordinates)) {
+                availableConnectors.add(coordinates)
             }
         })
 
@@ -41,9 +40,10 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
         var attemptsToMergeRegions = GameConfig.REGION_MERGING_ATTEMPTS
         while(!allRegionsAreMerged() && attemptsToMergeRegions > 0) {
             availableConnectors.forEach {
-                val tile = dungeon.grid[it.x][it.y]
-                if (tile.type == DungeonTileTypes.Earth && Coordinates(it.x, it.y).isWithinWorldBounds()) {
-                    placeConnector(it.x, it.y)
+                val coordinates = Coordinates(it.x, it.y)
+                val tile = dungeon.grid.get(coordinates)
+                if (tile.type == DungeonTileTypes.Earth && coordinates.areWithinWorldBounds()) {
+                    placeConnector(coordinates)
                 }
             }
             attemptsToMergeRegions--
@@ -58,15 +58,15 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
 
     private fun removeAllDisconnectedConnectors() {
         placedConnectors.forEach {
-            if (!connectorIsValid(it.x, it.y)) {
-                dungeon.grid[it.x][it.y].type = DungeonTileTypes.Earth
+            if (!connectorIsValid(it)) {
+                dungeon.grid.get(it).type = DungeonTileTypes.Earth
             }
         }
     }
 
     private fun anyConnectorsAreDisconnected(placedConnectors: ArrayList<Coordinates>): Boolean {
         placedConnectors.forEach {
-            if (!connectorIsValid(it.x, it.y)) {
+            if (!connectorIsValid(it)) {
                 return true
             }
         }
@@ -83,28 +83,28 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
         return true
     }
 
-    private fun placeConnector(x: Int, y: Int) {
-        val tileToNorth = dungeon.grid[x][y + 1]
-        val tileToSouth = dungeon.grid[x][y - 1]
-        val tileToEast = dungeon.grid[x + 1][y]
-        val tileToWest = dungeon.grid[x - 1][y]
+    private fun placeConnector(coordinates: Coordinates) {
+        val tileToNorth = dungeon.grid.get(coordinates.north())
+        val tileToSouth = dungeon.grid.get(coordinates.south())
+        val tileToEast = dungeon.grid.get(coordinates.east())
+        val tileToWest = dungeon.grid.get(coordinates.west())
 
         if(tilesCanHaveConnector(tileToNorth, tileToSouth)) {
             mergedRegions[tileToNorth.regionId] = tileToSouth.regionId
-            dungeon.grid[x][y].type = DungeonTileTypes.Door
-            placedConnectors.add(Coordinates(x, y))
+            dungeon.grid.get(coordinates).type = DungeonTileTypes.Door
+            placedConnectors.add(coordinates)
         } else if (tilesCanHaveConnector(tileToEast, tileToWest)) {
             mergedRegions[tileToEast.regionId] = tileToWest.regionId
-            dungeon.grid[x][y].type = DungeonTileTypes.Door
-            placedConnectors.add(Coordinates(x, y))
+            dungeon.grid.get(coordinates).type = DungeonTileTypes.Door
+            placedConnectors.add(coordinates)
         }
     }
 
-    private fun connectorIsValid(x: Int, y: Int): Boolean {
-        val tileToNorth = dungeon.grid[x][y + 1]
-        val tileToSouth = dungeon.grid[x][y - 1]
-        val tileToEast = dungeon.grid[x + 1][y]
-        val tileToWest = dungeon.grid[x - 1][y]
+    private fun connectorIsValid(coordinates: Coordinates): Boolean {
+        val tileToNorth = dungeon.grid.get(coordinates.north())
+        val tileToSouth = dungeon.grid.get(coordinates.south())
+        val tileToEast = dungeon.grid.get(coordinates.east())
+        val tileToWest = dungeon.grid.get(coordinates.west())
 
         return connectorIsConnected(tileToNorth, tileToSouth) || connectorIsConnected(tileToEast, tileToWest)
                 || connectorIsConnected(tileToNorth, tileToEast) || connectorIsConnected(tileToNorth, tileToEast)
