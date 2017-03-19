@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.EntitySystem
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.data.Dungeon
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
-import com.nonnulldev.anotherroom.types.loopDungeon
+import com.nonnulldev.anotherroom.types.loop
 
 class PathCleanupSystem(private val dungeon: Dungeon) : EntitySystem() {
 
@@ -14,12 +14,12 @@ class PathCleanupSystem(private val dungeon: Dungeon) : EntitySystem() {
     }
 
     override fun addedToEngine(engine: Engine?) {
-        loopDungeon(dungeon, { x, y ->
+        dungeon.grid.loop{ x, y ->
             val tile = dungeon.grid[x][y]
             if (tile.type == DungeonTileTypes.Path && isDeadEnd(x, y)) {
                 removePath(x, y)
             }
-        })
+        }
     }
 
     private fun isDeadEnd(x: Int, y: Int): Boolean {

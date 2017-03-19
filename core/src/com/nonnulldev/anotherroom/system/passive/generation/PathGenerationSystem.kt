@@ -8,7 +8,7 @@ import com.nonnulldev.anotherroom.data.*
 import com.nonnulldev.anotherroom.enum.Direction
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
 import com.nonnulldev.anotherroom.extension.areWithinWorldBounds
-import com.nonnulldev.anotherroom.types.loopDungeon
+import com.nonnulldev.anotherroom.types.loop
 import kotlin.collections.ArrayList
 
 class PathGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
@@ -25,23 +25,18 @@ class PathGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
         super.addedToEngine(engine)
 
 
-        loopDungeon(dungeon, { x, y ->
+        dungeon.grid.loop { x, y ->
             val coordinates = Coordinates(x, y)
             val regionId = dungeon.regions.size + 1
             var tileIsEarth = dungeon.grid[x][y].type == DungeonTileTypes.Earth
             if (tileIsEarth && coordinates.areWithinWorldBounds() && spaceInAnyDirectionForPath(coordinates)) {
                 generatePaths(coordinates, regionId).toString()
             }
-        })
-
-        log.debug("Number of paths: ${paths.count()}")
-        paths.toSortedMap().forEach { t, u ->
-            log.debug("Region id: $t")
-            log.debug("Number of tiles: ${u.count()}")
-            log.debug("Coordinates: $$u")
         }
 
-        paths.forEach { t, u ->
+        log.debug("Number of paths: ${paths.count()}")
+
+        paths.forEach { _, u ->
             var roomsNearPath = ArrayList<Int>()
             u.forEach {
                 val nearbyRooms = getNearbyRooms(it)

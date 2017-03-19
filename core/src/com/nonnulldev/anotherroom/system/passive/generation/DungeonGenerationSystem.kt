@@ -18,7 +18,7 @@ class DungeonGenerationSystem(private val listener: Listener) : EntitySystem(), 
 
     private val log = Logger(DungeonGenerationSystem::class.simpleName, Logger.DEBUG)
 
-    private var dungeon = Dungeon(array2dOfDungeonTiles(GameConfig.Companion.WORLD_HEIGHT.toInt(), GameConfig.Companion.WORLD_WIDTH.toInt()))
+    private var dungeon = Dungeon(array2dOfDungeonTiles(GameConfig.Companion.WORLD_WIDTH.toInt(), GameConfig.Companion.WORLD_HEIGHT.toInt()))
 
     private lateinit var engine: PooledEngine
 
