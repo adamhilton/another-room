@@ -38,6 +38,7 @@ class DungeonGenerationSystem(private val listener: Listener) : EntitySystem(), 
         engine.addSystem(PathGenerationSystem(dungeon))
         engine.addSystem(RegionConnectorSystem(dungeon, this))
         engine.addSystem(PathCleanupSystem(dungeon))
+        engine.addSystem(ConnectorCleanupSystem(dungeon))
     }
 
     private fun processEntities() {
