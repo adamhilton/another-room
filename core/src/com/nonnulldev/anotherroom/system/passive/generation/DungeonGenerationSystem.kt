@@ -38,11 +38,6 @@ class DungeonGenerationSystem(private val listener: Listener) : EntitySystem(), 
         engine.addSystem(PathGenerationSystem(dungeon))
         engine.addSystem(RegionConnectorSystem(dungeon, this))
         engine.addSystem(PathCleanupSystem(dungeon))
-
-        log.debug("Region count: ${dungeon.regions.count()}")
-        dungeon.regions.forEach {
-            log.debug("Region: $it")
-        }
     }
 
     private fun processEntities() {
