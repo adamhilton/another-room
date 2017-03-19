@@ -17,7 +17,7 @@ class DebugRenderSystem(private val viewport: Viewport, private val renderer: Sh
         viewport.apply()
         renderer.color = Color.RED
         renderer.projectionMatrix = viewport.camera.combined
-        renderer.begin(ShapeRenderer.ShapeType.Filled)
+        renderer.begin(ShapeRenderer.ShapeType.Line)
 
         super.update(deltaTime)
 

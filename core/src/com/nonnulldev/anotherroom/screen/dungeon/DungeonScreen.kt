@@ -11,8 +11,10 @@ import com.badlogic.gdx.utils.Logger
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.nonnulldev.anotherroom.AnotherRoomGame
+import com.nonnulldev.anotherroom.assets.AssetDescriptors
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.input.DungeonScreenInput
+import com.nonnulldev.anotherroom.system.RenderSystem
 import com.nonnulldev.anotherroom.system.debug.DebugCameraSystem
 import com.nonnulldev.anotherroom.system.debug.DebugInputSystem
 import com.nonnulldev.anotherroom.system.debug.DebugRenderSystem
@@ -25,8 +27,10 @@ class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter(),
         DungeonGenerationSystem.Listener {
 
     private val log = Logger(AnotherRoomGame::class.java.name, Logger.DEBUG)
+    private val isDebug = false
 
     private val batch = game.batch
+    private val assetManager = game.assetManager
 
     private lateinit var camera: OrthographicCamera
     private lateinit var viewport: Viewport
@@ -39,14 +43,22 @@ class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter(),
         renderer = ShapeRenderer()
         engine = PooledEngine()
 
+        assetManager.load(AssetDescriptors.GAME)
+        assetManager.finishLoading()
+
         addSystemsToEngine()
 
         Gdx.input.inputProcessor = DungeonScreenInput(this)
     }
 
     private fun addSystemsToEngine() {
-        addDebugSystemsToEngine()
-        engine.addSystem(DungeonGenerationSystem(this))
+        engine.addSystem(DungeonGenerationSystem(this, assetManager))
+
+        engine.addSystem(RenderSystem(viewport, batch))
+
+        if (isDebug) {
+            addDebugSystemsToEngine()
+        }
     }
 
     private fun addDebugSystemsToEngine() {

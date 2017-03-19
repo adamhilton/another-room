@@ -1,6 +1,5 @@
 package com.nonnulldev.anotherroom.types
 
-import com.nonnulldev.anotherroom.data.Dungeon
 import com.nonnulldev.anotherroom.data.DungeonTile
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
 import com.nonnulldev.anotherroom.system.passive.generation.RegionConnectorSystem

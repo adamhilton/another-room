@@ -3,24 +3,28 @@ package com.nonnulldev.anotherroom.system.passive.generation
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.utils.Logger
-import com.nonnulldev.anotherroom.component.BoundsComponent
-import com.nonnulldev.anotherroom.component.DimensionComponent
-import com.nonnulldev.anotherroom.component.PositionComponent
+import com.nonnulldev.anotherroom.assets.AssetDescriptors
+import com.nonnulldev.anotherroom.assets.RegionNames
+import com.nonnulldev.anotherroom.component.*
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.data.Dungeon
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
+import com.nonnulldev.anotherroom.enum.Orientation
 import com.nonnulldev.anotherroom.types.array2dOfDungeonTiles
 
 
-class DungeonGenerationSystem(private val listener: Listener) : EntitySystem(), RegionConnectorSystem.Listener {
+class DungeonGenerationSystem(private val listener: Listener, private val assetManager: AssetManager) : EntitySystem(), RegionConnectorSystem.Listener {
 
     private val log = Logger(DungeonGenerationSystem::class.simpleName, Logger.DEBUG)
 
     private var dungeon = Dungeon(array2dOfDungeonTiles(GameConfig.Companion.WORLD_WIDTH.toInt(), GameConfig.Companion.WORLD_HEIGHT.toInt()))
 
     private lateinit var engine: PooledEngine
+
+    private val gameAtlas = assetManager.get(AssetDescriptors.GAME)
 
     override fun checkProcessing(): Boolean {
         return false
@@ -50,21 +54,29 @@ class DungeonGenerationSystem(private val listener: Listener) : EntitySystem(), 
                 val position = positionComponent(x.toFloat(), y.toFloat())
                 val dimension = dimensionComponent(1f, 1f)
                 val bounds = boundsComponent(position, dimension)
+                val texture = textureComponent()
 
                 if (tile.type == DungeonTileTypes.Earth) {
-                    bounds.color = Color.CLEAR
+                    bounds.color = Color.WHITE
+                    texture.region = gameAtlas.findRegion(RegionNames.DUNGEON_EARTH)
                 } else if (tile.type == DungeonTileTypes.Room) {
                     bounds.color = Color.BLUE
+                    texture.region = gameAtlas.findRegion(RegionNames.DUNGEON_ROOM_FLOOR)
                 } else if (tile.type == DungeonTileTypes.Path) {
                     bounds.color = Color.GOLD
+                    texture.region = gameAtlas.findRegion(RegionNames.DUNGEON_ROOM_FLOOR)
                 } else if (tile.type == DungeonTileTypes.Door) {
                     bounds.color = Color.GREEN
+                    texture.region = gameAtlas.findRegion(RegionNames.DUNGEON_ROOM_DOOR)
+                    if(tile.orientation == Orientation.VERTICAL)
+                        texture.region = gameAtlas.findRegion(RegionNames.DUNGEON_ROOM_DOOR_VERTICAL)
                 }
 
                 val entity = engine.createEntity()
                 entity.add(position)
                 entity.add(dimension)
                 entity.add(bounds)
+                entity.add(texture)
 
                 engine.addEntity(entity)
             }
@@ -94,6 +106,11 @@ class DungeonGenerationSystem(private val listener: Listener) : EntitySystem(), 
         bounds.rectangle.setPosition(position.x, position.y)
         bounds.rectangle.setSize(dimension.width, dimension.height)
         return bounds
+    }
+
+    private fun textureComponent(): TextureComponent {
+        val texture = engine.createComponent(TextureComponent::class.java)
+        return texture
     }
 
     interface Listener {

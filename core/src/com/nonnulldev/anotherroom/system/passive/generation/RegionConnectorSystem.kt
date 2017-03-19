@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Logger
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.data.*
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
+import com.nonnulldev.anotherroom.enum.Orientation
 import com.nonnulldev.anotherroom.extension.areWithinWorldBounds
 import com.nonnulldev.anotherroom.types.array2dOfRegionTiles
 import com.nonnulldev.anotherroom.types.loop
@@ -139,10 +140,14 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
         }
 
         if(tilesCanHaveConnector(tileToNorth, tileToSouth)) {
-            dungeon.grid.get(coordinates).type = DungeonTileTypes.Door
+            val tile = dungeon.grid.get(coordinates)
+            tile.type = DungeonTileTypes.Door
+            tile.orientation = Orientation.HORIZONTAL
             placedConnectors[tileToNorth.regionId] = tileToSouth.regionId
         } else if (tilesCanHaveConnector(tileToEast, tileToWest)) {
-            dungeon.grid.get(coordinates).type = DungeonTileTypes.Door
+            val tile = dungeon.grid.get(coordinates)
+            tile.type = DungeonTileTypes.Door
+            tile.orientation = Orientation.VERTICAL
             placedConnectors[tileToEast.regionId] = tileToWest.regionId
         }
     }
