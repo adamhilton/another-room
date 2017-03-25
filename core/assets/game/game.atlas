@@ -6,35 +6,35 @@ filter: Nearest,Nearest
 repeat: none
 dungeon-earth
   rotate: false
-  xy: 2, 2
+  xy: 1, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 dungeon-room-door
   rotate: false
-  xy: 36, 2
+  xy: 35, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 dungeon-room-door-vertical
   rotate: false
-  xy: 70, 2
+  xy: 69, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 dungeon-room-floor
   rotate: false
-  xy: 104, 2
+  xy: 103, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 player
   rotate: false
-  xy: 138, 2
+  xy: 137, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

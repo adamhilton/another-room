@@ -1,4 +1,4 @@
-package com.nonnulldev.anotherroom.system.passive.entities
+package com.nonnulldev.anotherroom.system.player.passive
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem

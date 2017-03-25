@@ -7,6 +7,7 @@ private val ASSETS_PATH = "core/assets"
 
 fun main(args: Array<String>) {
     val settings = TexturePacker.Settings()
+    settings.duplicatePadding = true
 
     TexturePacker.process(settings,
             RAW_ASSETS_PATH + "/game",

@@ -1,4 +1,4 @@
-package com.nonnulldev.anotherroom.system.passive.generation
+package com.nonnulldev.anotherroom.system.generation.passive
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
@@ -20,7 +20,7 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
 
     private var placedConnectors = HashMap<Int, Int>()
     private var mergedRegions = HashSet<Int>()
-    private var regionTiles = array2dOfRegionTiles(GameConfig.WORLD_WIDTH.toInt(), GameConfig.WORLD_HEIGHT.toInt())
+    private var regionTiles = array2dOfRegionTiles(GameConfig.Companion.WORLD_WIDTH.toInt(), GameConfig.Companion.WORLD_HEIGHT.toInt())
 
     override fun checkProcessing(): Boolean {
         return false
@@ -60,7 +60,7 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
     }
 
     private fun checkIfAllRegionsAreAccessible(): Boolean {
-        regionTiles = array2dOfRegionTiles(GameConfig.WORLD_WIDTH.toInt(), GameConfig.WORLD_HEIGHT.toInt())
+        regionTiles = array2dOfRegionTiles(GameConfig.Companion.WORLD_WIDTH.toInt(), GameConfig.Companion.WORLD_HEIGHT.toInt())
 
         dungeon.grid.loop { coordinates ->
             val tile = dungeon.grid.get(coordinates)

@@ -20,7 +20,6 @@ class DebugCameraController {
 
     private fun init() {
         info = DebugCameraInfo()
-
         log.info("cameraInfo= " + info!!)
     }
 

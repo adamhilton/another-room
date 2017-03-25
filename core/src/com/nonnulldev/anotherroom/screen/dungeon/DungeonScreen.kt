@@ -14,15 +14,16 @@ import com.nonnulldev.anotherroom.AnotherRoomGame
 import com.nonnulldev.anotherroom.assets.AssetDescriptors
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.input.DungeonScreenInput
-import com.nonnulldev.anotherroom.system.AddPlayerToStartingRoomSystem
-import com.nonnulldev.anotherroom.system.PlayerCameraSystem
+import com.nonnulldev.anotherroom.system.player.AddPlayerToStartingRoomSystem
+import com.nonnulldev.anotherroom.system.player.PlayerCameraSystem
 import com.nonnulldev.anotherroom.system.RenderSystem
 import com.nonnulldev.anotherroom.system.debug.DebugCameraSystem
 import com.nonnulldev.anotherroom.system.debug.DebugInputSystem
 import com.nonnulldev.anotherroom.system.debug.DebugRenderSystem
 import com.nonnulldev.anotherroom.system.debug.GridRenderSystem
-import com.nonnulldev.anotherroom.system.passive.entities.CreatePlayerSystem
-import com.nonnulldev.anotherroom.system.passive.generation.DungeonGenerationSystem
+import com.nonnulldev.anotherroom.system.player.passive.CreatePlayerSystem
+import com.nonnulldev.anotherroom.system.generation.passive.DungeonGenerationSystem
+import com.nonnulldev.anotherroom.system.player.PlayerMovementSystem
 import com.nonnulldev.anotherroom.util.GdxUtils
 
 class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
@@ -57,17 +58,23 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
     private fun addSystemsToEngine() {
         engine.addSystem(DungeonGenerationSystem(this, assetManager))
 
-        engine.addSystem(CreatePlayerSystem(assetManager))
-
-        engine.addSystem(AddPlayerToStartingRoomSystem())
-
-        engine.addSystem(PlayerCameraSystem(camera, batch))
+        addPlayerSystemsToEngine()
 
         engine.addSystem(RenderSystem(viewport, batch))
 
         if (isDebug) {
             addDebugSystemsToEngine()
         }
+    }
+
+    private fun addPlayerSystemsToEngine() {
+        engine.addSystem(CreatePlayerSystem(assetManager))
+
+        engine.addSystem(AddPlayerToStartingRoomSystem())
+
+        engine.addSystem(PlayerCameraSystem(camera, batch))
+
+        engine.addSystem(PlayerMovementSystem())
     }
 
     private fun addDebugSystemsToEngine() {

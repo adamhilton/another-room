@@ -1,4 +1,4 @@
-package com.nonnulldev.anotherroom.system
+package com.nonnulldev.anotherroom.system.player
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
