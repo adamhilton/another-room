@@ -10,8 +10,6 @@ import com.nonnulldev.anotherroom.data.Dungeon
 import com.nonnulldev.anotherroom.data.Room
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
 import com.nonnulldev.anotherroom.enum.RoomSize
-import com.nonnulldev.anotherroom.types.loop
-import com.sun.org.apache.xpath.internal.operations.Bool
 import java.util.*
 
 class RoomGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
@@ -45,6 +43,7 @@ class RoomGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
                 dungeonTile.type = DungeonTileTypes.Room
             }
         }
+        dungeon.rooms.add(room)
     }
 
     private fun canBuildRoom(room: Room): Boolean {

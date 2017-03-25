@@ -32,3 +32,10 @@ dungeon-room-floor
   orig: 32, 32
   offset: 0, 0
   index: -1
+player
+  rotate: false
+  xy: 138, 2
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1

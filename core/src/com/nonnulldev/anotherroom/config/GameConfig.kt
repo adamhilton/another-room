@@ -21,5 +21,6 @@ class GameConfig private constructor(){
         val ROOM_TO_EDGE_OF_MAP_BUFFER = (WALL_SIZE ) + PATH_SIZE
 
         val DOOR_SIZE = 1f
+        val PLAYER_SIZE = 0.5f
     }
 }

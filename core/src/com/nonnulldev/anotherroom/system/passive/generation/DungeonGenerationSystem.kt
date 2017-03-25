@@ -16,7 +16,7 @@ import com.nonnulldev.anotherroom.enum.Orientation
 import com.nonnulldev.anotherroom.types.array2dOfDungeonTiles
 
 
-class DungeonGenerationSystem(private val listener: Listener, private val assetManager: AssetManager) : EntitySystem(), RegionConnectorSystem.Listener {
+class DungeonGenerationSystem(private val listener: Listener, assetManager: AssetManager) : EntitySystem(), RegionConnectorSystem.Listener {
 
     private val log = Logger(DungeonGenerationSystem::class.simpleName, Logger.DEBUG)
 
@@ -55,6 +55,8 @@ class DungeonGenerationSystem(private val listener: Listener, private val assetM
                 val dimension = dimensionComponent(1f, 1f)
                 val bounds = boundsComponent(position, dimension)
                 val texture = textureComponent()
+                val zOrder = engine.createComponent(ZOrderComponent::class.java)
+                zOrder.z = 0
 
                 if (tile.type == DungeonTileTypes.Earth) {
                     bounds.color = Color.WHITE
@@ -77,10 +79,28 @@ class DungeonGenerationSystem(private val listener: Listener, private val assetM
                 entity.add(dimension)
                 entity.add(bounds)
                 entity.add(texture)
+                entity.add(zOrder)
 
                 engine.addEntity(entity)
             }
         }
+
+        val room = dungeon.rooms.first()
+
+        val startingRoom = engine.createComponent(StartingRoomComponent::class.java)
+        val position = engine.createComponent(PositionComponent::class.java)
+        position.x = room.coordinates.x.toFloat()
+        position.y = room.coordinates.y.toFloat()
+        val dimension = engine.createComponent(DimensionComponent::class.java)
+        dimension.width = room.dimension.width.toFloat()
+        dimension.height = room.dimension.height.toFloat()
+        val startingRoomEntity = engine.createEntity()
+
+        startingRoomEntity.add(startingRoom)
+        startingRoomEntity.add(position)
+        startingRoomEntity.add(dimension)
+
+        engine.addEntity(startingRoomEntity)
     }
 
     override fun regionConnectorSystemFailed() {

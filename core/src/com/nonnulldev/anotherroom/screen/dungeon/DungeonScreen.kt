@@ -14,20 +14,23 @@ import com.nonnulldev.anotherroom.AnotherRoomGame
 import com.nonnulldev.anotherroom.assets.AssetDescriptors
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.input.DungeonScreenInput
+import com.nonnulldev.anotherroom.system.AddPlayerToStartingRoomSystem
+import com.nonnulldev.anotherroom.system.PlayerCameraSystem
 import com.nonnulldev.anotherroom.system.RenderSystem
 import com.nonnulldev.anotherroom.system.debug.DebugCameraSystem
 import com.nonnulldev.anotherroom.system.debug.DebugInputSystem
 import com.nonnulldev.anotherroom.system.debug.DebugRenderSystem
 import com.nonnulldev.anotherroom.system.debug.GridRenderSystem
+import com.nonnulldev.anotherroom.system.passive.entities.CreatePlayerSystem
 import com.nonnulldev.anotherroom.system.passive.generation.DungeonGenerationSystem
 import com.nonnulldev.anotherroom.util.GdxUtils
 
-class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter(),
+class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         DungeonScreenInput.Listener,
         DungeonGenerationSystem.Listener {
 
     private val log = Logger(AnotherRoomGame::class.java.name, Logger.DEBUG)
-    private val isDebug = false
+    private val isDebug = true
 
     private val batch = game.batch
     private val assetManager = game.assetManager
@@ -53,6 +56,13 @@ class DungeonScreen(private val game: AnotherRoomGame) : ScreenAdapter(),
 
     private fun addSystemsToEngine() {
         engine.addSystem(DungeonGenerationSystem(this, assetManager))
+
+        engine.addSystem(CreatePlayerSystem(assetManager))
+
+        engine.addSystem(AddPlayerToStartingRoomSystem())
+
+        engine.addSystem(PlayerCameraSystem(camera, batch))
+
 
         engine.addSystem(RenderSystem(viewport, batch))
 

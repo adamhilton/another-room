@@ -11,5 +11,6 @@ class Mappers private constructor(){
         val POSITION = ComponentMapper.getFor(PositionComponent::class.java)
         val DIMENSION = ComponentMapper.getFor(DimensionComponent::class.java)
         val TEXTURE = ComponentMapper.getFor(TextureComponent::class.java)
+        val Z_ORDER = ComponentMapper.getFor(ZOrderComponent::class.java)
     }
 }
