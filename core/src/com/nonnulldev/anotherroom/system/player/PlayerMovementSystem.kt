@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.Logger
 import com.nonnulldev.anotherroom.component.PlayerComponent
 import com.nonnulldev.anotherroom.component.PositionComponent
+import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.util.Mappers
 import com.nonnulldev.anotherroom.util.player.ControlCharacterInfo
 
@@ -35,7 +36,7 @@ class PlayerMovementSystem : EntitySystem() {
             return
         }
 
-        val moveSpeed = info.moveSpeed * deltaTime
+        val moveSpeed = GameConfig.PLAYER_SPEED * deltaTime
 
         if (info.isLeftPressed) {
             moveLeft(moveSpeed)

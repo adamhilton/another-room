@@ -16,8 +16,6 @@ class ControlCharacterInfo {
 		private set
 	var maxZoomOut: Float = 0.toFloat()
 		private set
-	var moveSpeed: Float = 0.toFloat()
-		private set
 	var zoomSpeed: Float = 0.toFloat()
 		private set
 
@@ -55,7 +53,6 @@ class ControlCharacterInfo {
 
 			maxZoomIn = root.getFloat(MAX_ZOOM_IN, DEFAULT_MAX_ZOOM_IN)
 			maxZoomOut = root.getFloat(MAX_ZOOM_OUT, DEFAULT_MAX_ZOOM_OUT)
-			moveSpeed = root.getFloat(MOVE_SPEED, DEFAULT_MOVE_SPEED)
 			zoomSpeed = root.getFloat(ZOOM_SPEED, DEFAULT_ZOOM_SPEED)
 
 			leftKey = getInputKeyValue(root, LEFT_KEY, DEFAULT_LEFT_KEY)
@@ -76,7 +73,6 @@ class ControlCharacterInfo {
 	private fun setupDefaults() {
 		maxZoomIn = DEFAULT_MAX_ZOOM_IN
 		maxZoomOut = DEFAULT_MAX_ZOOM_OUT
-		moveSpeed = DEFAULT_MOVE_SPEED
 		zoomSpeed = DEFAULT_ZOOM_SPEED
 
 		leftKey = DEFAULT_LEFT_KEY
@@ -117,7 +113,6 @@ class ControlCharacterInfo {
 		return "ControlCharacterInfo {" + LS +
 				"maxZoomIn= " + maxZoomIn + LS +
 				"maxZoomOut= " + maxZoomOut + LS +
-				"moveSpeed= " + moveSpeed + LS +
 				"zoomSpeed= " + zoomSpeed + LS +
 				"leftKey= " + Input.Keys.toString(leftKey) + LS +
 				"rightKey= " + Input.Keys.toString(rightKey) + LS +
@@ -136,7 +131,6 @@ class ControlCharacterInfo {
 
 		private val MAX_ZOOM_IN = "maxZoomIn"
 		private val MAX_ZOOM_OUT = "maxZoomOut"
-		private val MOVE_SPEED = "moveSpeed"
 		private val ZOOM_SPEED = "zoomSpeed"
 
 		private val LEFT_KEY = "leftKey"
@@ -158,7 +152,6 @@ class ControlCharacterInfo {
 
 		private val DEFAULT_RESET_KEY = Input.Keys.BACKSPACE
 
-		private val DEFAULT_MOVE_SPEED = 20.0f
 		private val DEFAULT_ZOOM_SPEED = 2.0f
 		private val DEFAULT_MAX_ZOOM_IN = 0.25f
 		private val DEFAULT_MAX_ZOOM_OUT = 30f
