@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.utils.Logger
 import com.nonnulldev.anotherroom.component.*
+import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.util.Mappers
 
 class AddPlayerToStartingRoomSystem : EntitySystem() {
@@ -42,8 +43,8 @@ class AddPlayerToStartingRoomSystem : EntitySystem() {
 
         val playerPosition = Mappers.POSITION.get(player)
         val playerBounds = Mappers.BOUNDS.get(player)
-        playerPosition.x = startingRoomPosition.x + (startingRoomDimension.width / 2f)
-        playerPosition.y = startingRoomPosition.y + (startingRoomDimension.height / 2f)
+        playerPosition.x = startingRoomPosition.x + (startingRoomDimension.width / 2f) - (GameConfig.PLAYER_SIZE / 2f)
+        playerPosition.y = startingRoomPosition.y + (startingRoomDimension.height / 2f) - (GameConfig.PLAYER_SIZE / 2f)
         playerBounds.rectangle.x = playerPosition.x
         playerBounds.rectangle.y = playerPosition.y
 

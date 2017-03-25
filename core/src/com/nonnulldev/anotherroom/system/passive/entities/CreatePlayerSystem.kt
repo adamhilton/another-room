@@ -2,6 +2,7 @@ package com.nonnulldev.anotherroom.system.passive.entities
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
+import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
@@ -15,6 +16,8 @@ class CreatePlayerSystem(assetManager: AssetManager) : EntitySystem() {
 
     private lateinit var engine: PooledEngine
 
+    private val FAMILY: Family = Family.all(PlayerComponent::class.java).get()
+
     private val gameAtlas = assetManager.get(AssetDescriptors.GAME)
 
     override fun checkProcessing(): Boolean {
@@ -23,6 +26,8 @@ class CreatePlayerSystem(assetManager: AssetManager) : EntitySystem() {
 
     override fun addedToEngine(engine: Engine?) {
         this.engine = engine as PooledEngine
+
+        removeAnyOtherPlayers(engine)
 
         val player = engine.createComponent(PlayerComponent::class.java)
         val position = engine.createComponent(PositionComponent::class.java)
@@ -46,6 +51,15 @@ class CreatePlayerSystem(assetManager: AssetManager) : EntitySystem() {
         entity.add(zOrder)
 
         engine.addEntity(entity)
+    }
+
+    private fun removeAnyOtherPlayers(engine: Engine) {
+        val playerEntities = engine.getEntitiesFor(FAMILY)
+        if (playerEntities.count() != 0) {
+            playerEntities.forEach {
+                engine.removeEntity(it)
+            }
+        }
     }
 }
 

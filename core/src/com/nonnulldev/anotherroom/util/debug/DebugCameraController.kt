@@ -29,6 +29,10 @@ class DebugCameraController {
         setPosition(x, y)
     }
 
+    fun setStartZoom(zoom: Float) {
+        this.zoom = zoom
+    }
+
     fun applyTo(camera: OrthographicCamera?) {
         if (camera == null) {
             throw IllegalArgumentException("camera cannot be null.")

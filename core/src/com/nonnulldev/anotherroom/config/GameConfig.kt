@@ -22,5 +22,6 @@ class GameConfig private constructor(){
 
         val DOOR_SIZE = 1f
         val PLAYER_SIZE = 0.5f
+        val  PLAYER_ZOOM = 0.6f
     }
 }

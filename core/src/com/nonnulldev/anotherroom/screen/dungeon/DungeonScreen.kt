@@ -30,7 +30,7 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         DungeonGenerationSystem.Listener {
 
     private val log = Logger(AnotherRoomGame::class.java.name, Logger.DEBUG)
-    private val isDebug = true
+    private val isDebug = false
 
     private val batch = game.batch
     private val assetManager = game.assetManager
@@ -63,7 +63,6 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
 
         engine.addSystem(PlayerCameraSystem(camera, batch))
 
-
         engine.addSystem(RenderSystem(viewport, batch))
 
         if (isDebug) {
@@ -76,6 +75,7 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         engine.addSystem(DebugCameraSystem(
                 GameConfig.WORLD_CENTER_X,
                 GameConfig.WORLD_CENTER_Y,
+                GameConfig.PLAYER_ZOOM,
                 camera
         ))
         engine.addSystem(DebugRenderSystem(viewport, renderer))
@@ -102,6 +102,10 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
 
     override fun refresh() {
         engine.clearPools()
+        engine.removeAllEntities()
+        engine.systems.forEach {
+            engine.removeSystem(it)
+        }
         engine = PooledEngine()
         addSystemsToEngine()
     }

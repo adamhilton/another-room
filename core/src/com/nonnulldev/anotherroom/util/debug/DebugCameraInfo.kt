@@ -73,7 +73,6 @@ class DebugCameraInfo {
             log.error("Error loading $FILE_PATH using defaults.", e)
             setupDefaults()
         }
-
     }
 
     private fun setupDefaults() {
