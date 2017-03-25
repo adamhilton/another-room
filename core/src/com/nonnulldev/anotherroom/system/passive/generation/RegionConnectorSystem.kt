@@ -32,8 +32,7 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
 
         val availableConnectors = ArrayList<Coordinates>()
 
-        dungeon.grid.loop { x, y ->
-            val coordinates = Coordinates(x, y)
+        dungeon.grid.loop { coordinates ->
             if (coordinates.areWithinWorldBounds() && connectorIsValid(coordinates)) {
                 availableConnectors.add(coordinates)
             }
@@ -63,17 +62,15 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
     private fun checkIfAllRegionsAreAccessible(): Boolean {
         regionTiles = array2dOfRegionTiles(GameConfig.WORLD_WIDTH.toInt(), GameConfig.WORLD_HEIGHT.toInt())
 
-        dungeon.grid.loop { x, y ->
-            val coordinates = Coordinates(x, y)
+        dungeon.grid.loop { coordinates ->
             val tile = dungeon.grid.get(coordinates)
-            regionTiles[x][y] = RegionTile(tile.regionId, tile.type)
+            regionTiles[coordinates.x][coordinates.y] = RegionTile(tile.regionId, tile.type)
         }
 
         var fillStarted = false
-        dungeon.grid.loop { x, y ->
+        dungeon.grid.loop { coordinates ->
             if (!fillStarted) {
-                val coordinates = Coordinates(x, y)
-                val tile = regionTiles[x][y]
+                val tile = regionTiles[coordinates.x][coordinates.y]
                 if (tile.type == DungeonTileTypes.Room) {
                     regionFill(coordinates)
                     fillStarted = true
@@ -94,10 +91,8 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
     }
 
     private fun regionFill(coordinates: Coordinates, regionId: Int) {
-        visitNeighbor(coordinates.west(), regionId)
-        visitNeighbor(coordinates.east(), regionId)
-        visitNeighbor(coordinates.south(), regionId)
-        visitNeighbor(coordinates.north(), regionId)
+        sequenceOf(coordinates.north(), coordinates.south(), coordinates.east(), coordinates.west())
+                .forEach { visitNeighbor(it, regionId) }
     }
 
     private fun visitNeighbor (coordinates: Coordinates, regionId: Int) {
@@ -153,6 +148,7 @@ class RegionConnectorSystem(private val dungeon: Dungeon, private val listener: 
     }
 
     private fun connectorIsNearTile(tileToNorth: DungeonTile, tileToSouth: DungeonTile, tileToEast: DungeonTile, tileToWest: DungeonTile): Boolean {
+
         return tileToNorth.type == DungeonTileTypes.Door ||
                 tileToEast.type == DungeonTileTypes.Door ||
                 tileToWest.type == DungeonTileTypes.Door ||

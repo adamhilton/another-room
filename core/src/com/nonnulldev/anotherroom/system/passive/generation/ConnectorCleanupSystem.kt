@@ -17,8 +17,7 @@ class ConnectorCleanupSystem(val dungeon: Dungeon) : EntitySystem() {
     }
 
     override fun addedToEngine(engine: Engine?) {
-        dungeon.grid.loop { x, y ->
-            val coordinates = Coordinates(x, y)
+        dungeon.grid.loop { coordinates ->
             val tile = dungeon.grid.get(coordinates)
             if (tile.type == DungeonTileTypes.Door && doorIsDead(coordinates)) {
                 log.debug("Removing dead door...")

@@ -25,10 +25,9 @@ class PathGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
         super.addedToEngine(engine)
 
 
-        dungeon.grid.loop { x, y ->
-            val coordinates = Coordinates(x, y)
+        dungeon.grid.loop { coordinates ->
             val regionId = dungeon.regions.size + 1
-            var tileIsEarth = dungeon.grid[x][y].type == DungeonTileTypes.Earth
+            var tileIsEarth = dungeon.grid.get(coordinates).type == DungeonTileTypes.Earth
             if (tileIsEarth && coordinates.areWithinWorldBounds() && spaceInAnyDirectionForPath(coordinates)) {
                 generatePaths(coordinates, regionId).toString()
             }

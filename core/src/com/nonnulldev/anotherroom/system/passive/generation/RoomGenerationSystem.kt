@@ -10,6 +10,7 @@ import com.nonnulldev.anotherroom.data.Dungeon
 import com.nonnulldev.anotherroom.data.Room
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
 import com.nonnulldev.anotherroom.enum.RoomSize
+import com.nonnulldev.anotherroom.types.loop
 import com.sun.org.apache.xpath.internal.operations.Bool
 import java.util.*
 
@@ -47,9 +48,12 @@ class RoomGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
     }
 
     private fun canBuildRoom(room: Room): Boolean {
-        for (roomX in 0..room.dimension.width + 2) {
-            for (roomY in 0..room.dimension.height + 2) {
-                var tile = dungeon.grid[room.coordinates.x + roomX - 2][room.coordinates.y + roomY - 2]
+        val roomWidthWithWalls = room.dimension.width + (GameConfig.WALL_SIZE.toInt() * 2)
+        val roomHeightWithWalls = room.dimension.height + (GameConfig.WALL_SIZE.toInt() * 2)
+
+        for (roomX in 0..roomWidthWithWalls) {
+            for (roomY in 0..roomHeightWithWalls) {
+                var tile = dungeon.grid[room.coordinates.x + roomX - (GameConfig.WALL_SIZE.toInt() * 2)][room.coordinates.y + roomY - (GameConfig.WALL_SIZE.toInt() * 2)]
                 if (tile.type != DungeonTileTypes.Earth) {
                     return false
                 }
