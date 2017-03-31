@@ -34,6 +34,7 @@ class DungeonGenerationSystem(private val listener: Listener, assetManager: Asse
         this.engine = engine as PooledEngine
 
         runGenerationSystems()
+
         processEntities()
     }
 
@@ -43,6 +44,7 @@ class DungeonGenerationSystem(private val listener: Listener, assetManager: Asse
         engine.addSystem(RegionConnectorSystem(dungeon, this))
         engine.addSystem(PathCleanupSystem(dungeon))
         engine.addSystem(ConnectorCleanupSystem(dungeon))
+        engine.addSystem(DungeonBoundariesSystem(dungeon))
     }
 
     private fun processEntities() {

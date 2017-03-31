@@ -66,7 +66,7 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
 
     private fun addSystemsToEngine() {
         engine.addSystem(DungeonGenerationSystem(this, assetManager))
-        engine.addSystem(RoomPhysicsSystem(world))
+//        engine.addSystem(RoomPhysicsSystem(world))
         engine.addSystem(PhysicsBoundsSystem(world))
         engine.addSystem(PhysicsSystem(world))
 //        addPlayerSystemsToEngine()

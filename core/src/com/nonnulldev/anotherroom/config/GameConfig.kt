@@ -24,5 +24,7 @@ class GameConfig private constructor(){
         val PLAYER_SIZE = 0.3f
         val PLAYER_ZOOM = 0.1f
         val PLAYER_SPEED = 4f
+
+        val TILE_SIZE = 1f
     }
 }
