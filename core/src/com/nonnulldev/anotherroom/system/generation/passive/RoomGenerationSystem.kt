@@ -2,7 +2,9 @@ package com.nonnulldev.anotherroom.system.generation.passive
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
+import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.math.MathUtils
+import com.nonnulldev.anotherroom.component.RoomComponent
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.data.Coordinates
 import com.nonnulldev.anotherroom.data.Dimension
@@ -44,6 +46,13 @@ class RoomGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
             }
         }
         dungeon.rooms.add(room)
+        val roomComponent = (engine as PooledEngine).createComponent(RoomComponent::class.java)
+        roomComponent.dimension = room.dimension
+        roomComponent.centerX = room.coordinates.x + (room.dimension.width / 2f)
+        roomComponent.centerY = room.coordinates.y + (room.dimension.height / 2f)
+        val entity = (engine as PooledEngine).createEntity()
+        entity.add(roomComponent)
+        engine.addEntity(entity)
     }
 
     private fun canBuildRoom(room: Room): Boolean {
