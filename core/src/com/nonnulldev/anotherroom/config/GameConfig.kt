@@ -22,9 +22,11 @@ class GameConfig private constructor(){
 
         val DOOR_SIZE = 1f
         val PLAYER_SIZE = 0.3f
-        val PLAYER_ZOOM = 0.1f
+        val PLAYER_ZOOM = 0.3f
         val PLAYER_SPEED = 50f
         val MAX_VELOCITY = 10f
+
+        val DEFAULT_REFRESH_RATE = 60f
 
         val TILE_SIZE = 1f
         val PLAYER_DENSITY = 50f

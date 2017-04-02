@@ -29,17 +29,18 @@ class EarthBoundaryPhysicsSystem(private val world: World) : EntitySystem() {
 
         val earthBoundarySegments = engine.getEntitiesFor(FAMILY)
 
-        earthBoundarySegments.forEach {
-            val boundarySegment = Mappers.EARTH_BOUNDARY_SEGMENT.get(it)
-            createBoundary(boundarySegment)
-        }
-    }
-
-    fun createBoundary(boundarySegment: EarthBoundarySegmentComponent) {
         val bodyDef = BodyDef()
         bodyDef.type = BodyDef.BodyType.StaticBody
         bodyDef.position.set(0f, 0f)
         val body = world.createBody(bodyDef)
+
+        earthBoundarySegments.forEach {
+            val boundarySegment = Mappers.EARTH_BOUNDARY_SEGMENT.get(it)
+            createBoundary(boundarySegment, body)
+        }
+    }
+
+    fun createBoundary(boundarySegment: EarthBoundarySegmentComponent, body: Body) {
         val fixtureDef = FixtureDef()
         val shape = EdgeShape()
         shape.set(

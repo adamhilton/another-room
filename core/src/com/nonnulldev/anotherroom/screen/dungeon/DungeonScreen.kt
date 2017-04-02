@@ -33,7 +33,7 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         DungeonGenerationSystem.Listener {
 
     private val log = Logger(AnotherRoomGame::class.java.name, Logger.DEBUG)
-    private val isDebug = true
+    private val isDebug = false
 
     private val batch = game.batch
     private val assetManager = game.assetManager
@@ -78,6 +78,7 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
 
         engine.addSystem(PlayerMovementSystem())
         engine.addSystem(ProcessPhysicsSystem(world))
+
         engine.addSystem(PlayerCameraSystem(camera))
 
         engine.addSystem(DungeonRenderSystem(viewport, batch))
