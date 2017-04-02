@@ -33,8 +33,6 @@ class PathGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
             }
         }
 
-        log.debug("Number of paths: ${paths.count()}")
-
         paths.forEach { _, u ->
             var roomsNearPath = ArrayList<Int>()
             u.forEach {
@@ -55,7 +53,7 @@ class PathGenerationSystem(private val dungeon: Dungeon) : EntitySystem() {
         coordinates.forEach {
             val dungeonTile = dungeon.grid.get(it)
             dungeonTile.type = DungeonTileTypes.Earth
-            dungeonTile.regionId = 0 // TODO: Move this to a constant
+            dungeonTile.regionId = DungeonTile.INVALID_REGION_ID
         }
     }
 
