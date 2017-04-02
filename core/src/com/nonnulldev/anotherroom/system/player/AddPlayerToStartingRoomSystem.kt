@@ -41,11 +41,9 @@ class AddPlayerToStartingRoomSystem : EntitySystem() {
         val startingRoomDimension = Mappers.DIMENSION.get(startingRoom)
 
         val playerPosition = Mappers.POSITION.get(player)
-        val playerBounds = Mappers.BOUNDS.get(player)
         playerPosition.x = startingRoomPosition.x + (startingRoomDimension.width / 2f) - (GameConfig.PLAYER_SIZE / 2f)
         playerPosition.y = startingRoomPosition.y + (startingRoomDimension.height / 2f) - (GameConfig.PLAYER_SIZE / 2f)
-        playerBounds.rectangle.x = playerPosition.x
-        playerBounds.rectangle.y = playerPosition.y
+
 
         log.debug("Player position: x: ${playerPosition.x} y: ${playerPosition.y}")
     }

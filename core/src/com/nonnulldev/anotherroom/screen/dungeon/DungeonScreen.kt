@@ -18,7 +18,8 @@ import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.input.DungeonScreenInput
 import com.nonnulldev.anotherroom.system.player.AddPlayerToStartingRoomSystem
 import com.nonnulldev.anotherroom.system.player.PlayerCameraSystem
-import com.nonnulldev.anotherroom.system.RenderSystem
+import com.nonnulldev.anotherroom.system.DungeonRenderSystem
+import com.nonnulldev.anotherroom.system.PlayerRenderSystem
 import com.nonnulldev.anotherroom.system.player.passive.CreatePlayerSystem
 import com.nonnulldev.anotherroom.system.generation.passive.DungeonGenerationSystem
 import com.nonnulldev.anotherroom.system.physics.ProcessPhysicsSystem
@@ -44,6 +45,8 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
     private lateinit var engine: PooledEngine
     private lateinit var world: World
 
+    private var dungeonGenerationFailed = false
+
     override fun show() {
         camera = OrthographicCamera()
         viewport = FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera)
@@ -63,6 +66,11 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
 
     private fun addSystemsToEngine() {
         engine.addSystem(DungeonGenerationSystem(this, assetManager))
+
+        if (dungeonGenerationFailed) {
+            refresh()
+            return
+        }
         engine.addSystem(EarthBoundaryPhysicsSystem(world))
 
         engine.addSystem(CreatePlayerSystem(assetManager))
@@ -72,7 +80,9 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         engine.addSystem(PlayerMovementSystem())
         engine.addSystem(ProcessPhysicsSystem(world))
         engine.addSystem(PlayerCameraSystem(camera))
-        engine.addSystem(RenderSystem(viewport, batch))
+
+        engine.addSystem(DungeonRenderSystem(viewport, batch))
+        engine.addSystem(PlayerRenderSystem(viewport, batch))
 
         if (isDebug) {
             engine.addSystem(Box2DDebugRenderSystem(world, camera))
@@ -103,6 +113,9 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
 
     override fun refresh() {
         log.error("Refresh is starting...")
+
+        dungeonGenerationFailed = false
+
         engine.clearPools()
         engine.removeAllEntities()
         engine.systems.forEach {
@@ -114,9 +127,11 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         world = createWorld()
         
         addSystemsToEngine()
+
+        return
     }
 
     override fun dungeonGenerationSystemFailed() {
-        refresh()
+        dungeonGenerationFailed = true
     }
 }

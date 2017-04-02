@@ -57,6 +57,7 @@ class DungeonGenerationSystem(private val listener: Listener, assetManager: Asse
                 val dimension = dimensionComponent(1f, 1f)
                 val bounds = boundsComponent(position, dimension)
                 val texture = textureComponent()
+                val dungeonTile = engine.createComponent(DungeonTileComponent::class.java)
                 val zOrder = engine.createComponent(ZOrderComponent::class.java)
                 zOrder.z = 0
 
@@ -81,6 +82,7 @@ class DungeonGenerationSystem(private val listener: Listener, assetManager: Asse
                 entity.add(dimension)
                 entity.add(bounds)
                 entity.add(texture)
+                entity.add(dungeonTile)
                 entity.add(zOrder)
 
                 engine.addEntity(entity)

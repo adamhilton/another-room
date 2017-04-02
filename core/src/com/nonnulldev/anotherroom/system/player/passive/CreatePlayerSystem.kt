@@ -34,9 +34,6 @@ class CreatePlayerSystem(assetManager: AssetManager) : EntitySystem() {
         val dimension = engine.createComponent(DimensionComponent::class.java)
         dimension.width = GameConfig.PLAYER_SIZE
         dimension.height = GameConfig.PLAYER_SIZE
-        val bounds = engine.createComponent(BoundsComponent::class.java)
-        bounds.color = Color.RED
-        bounds.rectangle = Rectangle(position.x, position.y, dimension.width, dimension.height)
         val texture = engine.createComponent(TextureComponent::class.java)
         texture.region = gameAtlas.findRegion(RegionNames.PLAYER)
         val zOrder = engine.createComponent(ZOrderComponent::class.java)
@@ -46,7 +43,6 @@ class CreatePlayerSystem(assetManager: AssetManager) : EntitySystem() {
         entity.add(player)
         entity.add(position)
         entity.add(dimension)
-        entity.add(bounds)
         entity.add(texture)
         entity.add(zOrder)
 
