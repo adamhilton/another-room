@@ -34,6 +34,8 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
 
     private val log = Logger(AnotherRoomGame::class.java.name, Logger.DEBUG)
     private val isDebug = false
+    private val shouldRenderTextures = true
+    private val shouldUsePlayerCamera = true
 
     private val batch = game.batch
     private val assetManager = game.assetManager
@@ -79,10 +81,14 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         engine.addSystem(PlayerMovementSystem())
         engine.addSystem(ProcessPhysicsSystem(world))
 
-        engine.addSystem(PlayerCameraSystem(camera))
+        if (shouldUsePlayerCamera) {
+            engine.addSystem(PlayerCameraSystem(camera))
+        }
 
-        engine.addSystem(DungeonRenderSystem(viewport, batch))
-        engine.addSystem(PlayerRenderSystem(viewport, batch))
+        if (shouldRenderTextures) {
+            engine.addSystem(DungeonRenderSystem(viewport, batch))
+            engine.addSystem(PlayerRenderSystem(viewport, batch))
+        }
 
         if (isDebug) {
             engine.addSystem(Box2DDebugRenderSystem(world, camera))

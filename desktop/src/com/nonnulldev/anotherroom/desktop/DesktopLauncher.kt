@@ -10,6 +10,8 @@ object DesktopLauncher {
     @JvmStatic
     fun main(args: Array<String>) {
         val config = LwjglApplicationConfiguration()
+        config.useGL30 = true
+        config.vSyncEnabled = true
         config.width = GameConfig.WIDTH
         config.height = GameConfig.HEIGHT
         LwjglApplication(AnotherRoomGame(), config)
