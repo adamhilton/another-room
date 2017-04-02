@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.*
 import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.physics.box2d.Body
-import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.utils.Logger
 import com.nonnulldev.anotherroom.player.component.PlayerComponent
 import com.nonnulldev.anotherroom.player.component.PlayerPhysicsBodyComponent
@@ -30,7 +29,6 @@ class PlayerMovementSystem : EntitySystem() {
 
     override fun addedToEngine(engine: Engine?) {
         this.engine = engine as PooledEngine
-        log.info("Player Movement Info= $info")
 
         val playerBodyPhysics = engine.getEntitiesFor(PLAYER_PHYSICS_BODY_FAMILY).first()
         playerBody = Mappers.PLAYER_BODY_PHYSICS.get(playerBodyPhysics).body as Body
@@ -82,8 +80,7 @@ class PlayerMovementSystem : EntitySystem() {
         updatePosition(0f, -speed)
     }
 
-
     private fun updatePosition(x: Float, y: Float) {
-        playerBody.applyLinearImpulse(x, y, 0f, 0f, false)
+        playerBody.applyLinearImpulse(x, y, 0f, 0f, true)
     }
 }

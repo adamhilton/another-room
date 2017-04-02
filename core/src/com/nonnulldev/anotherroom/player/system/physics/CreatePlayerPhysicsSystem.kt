@@ -10,11 +10,11 @@ import com.badlogic.gdx.physics.box2d.CircleShape
 import com.badlogic.gdx.physics.box2d.FixtureDef
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.utils.Logger
-import com.nonnulldev.anotherroom.player.component.PlayerComponent
-import com.nonnulldev.anotherroom.player.component.PlayerPhysicsBodyComponent
 import com.nonnulldev.anotherroom.common.component.PositionComponent
 import com.nonnulldev.anotherroom.common.config.GameConfig
 import com.nonnulldev.anotherroom.common.util.Mappers
+import com.nonnulldev.anotherroom.player.component.PlayerComponent
+import com.nonnulldev.anotherroom.player.component.PlayerPhysicsBodyComponent
 
 class CreatePlayerPhysicsSystem(private val world: World) : EntitySystem() {
 
@@ -35,18 +35,15 @@ class CreatePlayerPhysicsSystem(private val world: World) : EntitySystem() {
         this.engine = engine as PooledEngine
 
         val player = engine.getEntitiesFor(FAMILY)
-        if (player.size() > 1) {
-            log.error("MORE THAN ONE PLAYER IN ENGINE")
-        }
 
         val position = Mappers.POSITION.get(player.first())
 
         val bodyDef = BodyDef()
         bodyDef.position.set(position.x, position.y)
         bodyDef.type = BodyDef.BodyType.DynamicBody
-        bodyDef.linearDamping = 8f
+        bodyDef.linearDamping = GameConfig.DEFAULT_LINEAR_DAMPENING
         bodyDef.fixedRotation = true
-        bodyDef.allowSleep = false
+        bodyDef.allowSleep = true
 
         val body = world.createBody(bodyDef)
         val fixtureDef = FixtureDef()
@@ -57,16 +54,10 @@ class CreatePlayerPhysicsSystem(private val world: World) : EntitySystem() {
         fixtureDef.density = GameConfig.PLAYER_DENSITY
         body.createFixture(fixtureDef)
 
-        log.debug("Created player....")
-
         val component = engine.createComponent(PlayerPhysicsBodyComponent::class.java)
         component.body = body
         val entity = engine.createEntity()
         entity.add(component)
         engine.addEntity(entity)
-    }
-
-    override fun removedFromEngine(engine: Engine?) {
-
     }
 }

@@ -27,6 +27,7 @@ class GameConfig private constructor(){
         val MAX_VELOCITY = 10f
 
         val DEFAULT_REFRESH_RATE = 60f
+        val DEFAULT_LINEAR_DAMPENING = 8f
 
         val TILE_SIZE = 1f
         val PLAYER_DENSITY = 50f
