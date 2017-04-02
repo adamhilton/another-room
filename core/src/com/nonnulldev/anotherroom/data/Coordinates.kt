@@ -1,6 +1,11 @@
 package com.nonnulldev.anotherroom.data
 
-data class Coordinates(var x: Int, var y: Int)
+data class Coordinates(var x: Int, var y: Int) {
+    fun set(x: Int, y: Int) {
+        this.x = x
+        this.y = y
+    }
+}
 
 fun Coordinates.north(): Coordinates {
     return Coordinates(x, y + 1)

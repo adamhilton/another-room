@@ -2,12 +2,14 @@ package com.nonnulldev.anotherroom.util
 
 import com.badlogic.ashley.core.ComponentMapper
 import com.nonnulldev.anotherroom.component.*
+import com.nonnulldev.anotherroom.component.common.*
+import com.nonnulldev.anotherroom.component.dungeon.EarthBoundarySegmentComponent
+import com.nonnulldev.anotherroom.component.dungeon.RoomComponent
+import com.nonnulldev.anotherroom.component.player.PlayerPhysicsBodyComponent
 
 class Mappers private constructor(){
 
     companion object {
-        val BOUNDS: ComponentMapper<BoundsComponent> = ComponentMapper.getFor(BoundsComponent::class.java)
-
         val ROOM: ComponentMapper<RoomComponent> = ComponentMapper.getFor(RoomComponent::class.java)
 
         val POSITION: ComponentMapper<PositionComponent> = ComponentMapper.getFor(PositionComponent::class.java)

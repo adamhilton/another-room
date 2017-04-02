@@ -15,17 +15,17 @@ import com.nonnulldev.anotherroom.AnotherRoomGame
 import com.nonnulldev.anotherroom.assets.AssetDescriptors
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.input.DungeonScreenInput
-import com.nonnulldev.anotherroom.system.DungeonRenderSystem
-import com.nonnulldev.anotherroom.system.PlayerRenderSystem
-import com.nonnulldev.anotherroom.system.generation.passive.DungeonGenerationSystem
-import com.nonnulldev.anotherroom.system.physics.ProcessPhysicsSystem
-import com.nonnulldev.anotherroom.system.physics.debug.Box2DDebugRenderSystem
-import com.nonnulldev.anotherroom.system.physics.passive.CreatePlayerPhysicsSystem
-import com.nonnulldev.anotherroom.system.physics.passive.EarthBoundaryPhysicsSystem
-import com.nonnulldev.anotherroom.system.player.AddPlayerToStartingRoomSystem
+import com.nonnulldev.anotherroom.system.dungeon.DungeonRenderSystem
+import com.nonnulldev.anotherroom.system.player.PlayerRenderSystem
+import com.nonnulldev.anotherroom.system.dungeon.creation.DungeonGenerationSystem
+import com.nonnulldev.anotherroom.system.common.ProcessPhysicsSystem
+import com.nonnulldev.anotherroom.system.common.debug.Box2DDebugRenderSystem
+import com.nonnulldev.anotherroom.system.player.physics.CreatePlayerPhysicsSystem
+import com.nonnulldev.anotherroom.system.dungeon.physics.EarthBoundaryPhysicsSystem
+import com.nonnulldev.anotherroom.system.player.creation.AddPlayerToStartingRoomSystem
 import com.nonnulldev.anotherroom.system.player.PlayerCameraSystem
 import com.nonnulldev.anotherroom.system.player.PlayerMovementSystem
-import com.nonnulldev.anotherroom.system.player.passive.CreatePlayerSystem
+import com.nonnulldev.anotherroom.system.player.creation.CreatePlayerSystem
 import com.nonnulldev.anotherroom.util.GdxUtils
 
 class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),

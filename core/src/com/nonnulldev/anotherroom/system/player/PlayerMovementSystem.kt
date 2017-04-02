@@ -6,9 +6,9 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.utils.Logger
-import com.nonnulldev.anotherroom.component.PlayerComponent
-import com.nonnulldev.anotherroom.component.PlayerPhysicsBodyComponent
-import com.nonnulldev.anotherroom.component.PositionComponent
+import com.nonnulldev.anotherroom.component.player.PlayerComponent
+import com.nonnulldev.anotherroom.component.player.PlayerPhysicsBodyComponent
+import com.nonnulldev.anotherroom.component.common.PositionComponent
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.util.Mappers
 import com.nonnulldev.anotherroom.util.player.ControlCharacterInfo

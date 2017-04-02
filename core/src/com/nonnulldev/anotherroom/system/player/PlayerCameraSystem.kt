@@ -6,9 +6,9 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.Logger
-import com.nonnulldev.anotherroom.component.PlayerComponent
-import com.nonnulldev.anotherroom.component.PlayerPhysicsBodyComponent
-import com.nonnulldev.anotherroom.component.PositionComponent
+import com.nonnulldev.anotherroom.component.player.PlayerComponent
+import com.nonnulldev.anotherroom.component.player.PlayerPhysicsBodyComponent
+import com.nonnulldev.anotherroom.component.common.PositionComponent
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.util.Mappers
 

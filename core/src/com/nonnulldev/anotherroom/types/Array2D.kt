@@ -3,7 +3,7 @@ package com.nonnulldev.anotherroom.types
 import com.nonnulldev.anotherroom.data.Coordinates
 import com.nonnulldev.anotherroom.data.DungeonTile
 import com.nonnulldev.anotherroom.enum.DungeonTileTypes
-import com.nonnulldev.anotherroom.system.generation.passive.RegionConnectorSystem
+import com.nonnulldev.anotherroom.system.dungeon.creation.RegionConnectorSystem
 
 fun array2dOfDungeonTiles(sizeOuter: Int, sizeInner: Int): Array<Array<DungeonTile>>
         = Array(sizeOuter) { Array(sizeInner){ DungeonTile() } }
