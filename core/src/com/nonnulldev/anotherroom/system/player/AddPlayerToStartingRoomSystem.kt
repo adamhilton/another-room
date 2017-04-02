@@ -16,8 +16,7 @@ class AddPlayerToStartingRoomSystem : EntitySystem() {
 
     val PLAYER_FAMILY: Family = Family.all(
             PlayerComponent::class.java,
-            PositionComponent::class.java,
-            BoundsComponent::class.java // TODO: Move bounds updating to a player moving system
+            PositionComponent::class.java
     ).get()
 
     val STARTING_ROOM_FAMILY: Family = Family.all(

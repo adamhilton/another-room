@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.World
-import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Logger
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
@@ -20,16 +19,12 @@ import com.nonnulldev.anotherroom.input.DungeonScreenInput
 import com.nonnulldev.anotherroom.system.player.AddPlayerToStartingRoomSystem
 import com.nonnulldev.anotherroom.system.player.PlayerCameraSystem
 import com.nonnulldev.anotherroom.system.RenderSystem
-import com.nonnulldev.anotherroom.system.debug.DebugCameraSystem
-import com.nonnulldev.anotherroom.system.debug.DebugInputSystem
-import com.nonnulldev.anotherroom.system.debug.DebugRenderSystem
-import com.nonnulldev.anotherroom.system.debug.GridRenderSystem
 import com.nonnulldev.anotherroom.system.player.passive.CreatePlayerSystem
 import com.nonnulldev.anotherroom.system.generation.passive.DungeonGenerationSystem
-import com.nonnulldev.anotherroom.system.physics.PhysicsSystem
-import com.nonnulldev.anotherroom.system.physics.passive.RoomPhysicsSystem
+import com.nonnulldev.anotherroom.system.physics.ProcessPhysicsSystem
 import com.nonnulldev.anotherroom.system.physics.debug.Box2DDebugRenderSystem
-import com.nonnulldev.anotherroom.system.physics.passive.PhysicsBoundsSystem
+import com.nonnulldev.anotherroom.system.physics.passive.EarthBoundaryPhysicsSystem
+import com.nonnulldev.anotherroom.system.physics.passive.CreatePlayerPhysicsSystem
 import com.nonnulldev.anotherroom.system.player.PlayerMovementSystem
 import com.nonnulldev.anotherroom.util.GdxUtils
 
@@ -54,7 +49,7 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         viewport = FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera)
         renderer = ShapeRenderer()
         engine = PooledEngine()
-        world = World(Vector2(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT), true)
+        world = createWorld()
 
         assetManager.load(AssetDescriptors.GAME)
         assetManager.finishLoading()
@@ -64,37 +59,26 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         Gdx.input.inputProcessor = DungeonScreenInput(this)
     }
 
+    private fun createWorld() = World(Vector2(0f, 0f), true)
+
     private fun addSystemsToEngine() {
         engine.addSystem(DungeonGenerationSystem(this, assetManager))
-//        engine.addSystem(RoomPhysicsSystem(world))
-        engine.addSystem(PhysicsBoundsSystem(world))
-        engine.addSystem(PhysicsSystem(world))
-//        addPlayerSystemsToEngine()
+        engine.addSystem(EarthBoundaryPhysicsSystem(world))
+        engine.addSystem(ProcessPhysicsSystem(world))
+        addPlayerSystemsToEngine()
         engine.addSystem(RenderSystem(viewport, batch))
 
         if (isDebug) {
             engine.addSystem(Box2DDebugRenderSystem(world, camera))
-//            addDebugSystemsToEngine()
         }
     }
 
     private fun addPlayerSystemsToEngine() {
         engine.addSystem(CreatePlayerSystem(assetManager))
         engine.addSystem(AddPlayerToStartingRoomSystem())
-        engine.addSystem(PlayerCameraSystem(camera, batch))
+        engine.addSystem(CreatePlayerPhysicsSystem(world))
         engine.addSystem(PlayerMovementSystem())
-    }
-
-    private fun addDebugSystemsToEngine() {
-        engine.addSystem(GridRenderSystem(viewport, renderer))
-        engine.addSystem(DebugCameraSystem(
-                GameConfig.WORLD_CENTER_X,
-                GameConfig.WORLD_CENTER_Y,
-                GameConfig.PLAYER_ZOOM,
-                camera
-        ))
-        engine.addSystem(DebugRenderSystem(viewport, renderer))
-        engine.addSystem(DebugInputSystem())
+        engine.addSystem(PlayerCameraSystem(camera))
     }
 
     override fun render(delta: Float) {
@@ -120,6 +104,7 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
     }
 
     override fun refresh() {
+        log.error("Refresh is starting...")
         engine.clearPools()
         engine.removeAllEntities()
         engine.systems.forEach {
@@ -127,13 +112,8 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         }
         engine = PooledEngine()
 
-        if(world.bodyCount > 0) {
-            var bodies = com.badlogic.gdx.utils.Array<Body>()
-            world.getBodies(bodies)
-            for (i in 0..world.bodyCount - 1) {
-                world.destroyBody(bodies[i])
-            }
-        }
+        world = createWorld()
+        
         addSystemsToEngine()
     }
 

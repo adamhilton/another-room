@@ -7,34 +7,32 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.Logger
 import com.nonnulldev.anotherroom.component.PlayerComponent
+import com.nonnulldev.anotherroom.component.PlayerPhysicsBodyComponent
 import com.nonnulldev.anotherroom.component.PositionComponent
 import com.nonnulldev.anotherroom.config.GameConfig
 import com.nonnulldev.anotherroom.util.Mappers
 
-class PlayerCameraSystem(val camera: OrthographicCamera, val batch: SpriteBatch) : EntitySystem() {
+class PlayerCameraSystem(val camera: OrthographicCamera) : EntitySystem() {
 
     val log = Logger(PlayerCameraSystem::class.java.simpleName, Logger.DEBUG)
 
+    val FAMILY: Family = Family.all(PlayerComponent::class.java, PositionComponent::class.java).get()
 
-    val FAMILY: Family = Family.all(
-            PlayerComponent::class.java,
-            PositionComponent::class.java
-    ).get()
 
     override fun addedToEngine(engine: Engine?) {
         camera.zoom = GameConfig.PLAYER_ZOOM
     }
 
     override fun update(deltaTime: Float) {
-        val players = engine.getEntitiesFor(FAMILY)
-        if (players.count() != 1) {
-            log.error("Players count is not equal to 1. Players entities found: ${players.count()}")
-        }
-        if (players.count() == 1) {
-            val position = Mappers.POSITION.get(players.first())
-            camera.position.set(position.x, position.y, 0f)
-            camera.update()
-            batch.projectionMatrix = camera.combined
-        }
+        val player = engine.getEntitiesFor(FAMILY).first()
+        val playerPosition = Mappers.POSITION.get(player)
+
+        val cameraPosition = camera.position
+        cameraPosition.x = camera.position.x + (playerPosition.x - camera.position.x) * 0.1f
+        cameraPosition.y = camera.position.y + (playerPosition.y - camera.position.y) * 0.1f
+        camera.position.set(cameraPosition)
+
+        camera.update()
+
     }
 }
