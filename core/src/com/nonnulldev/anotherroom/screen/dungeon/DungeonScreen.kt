@@ -64,21 +64,19 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
     private fun addSystemsToEngine() {
         engine.addSystem(DungeonGenerationSystem(this, assetManager))
         engine.addSystem(EarthBoundaryPhysicsSystem(world))
+
+        engine.addSystem(CreatePlayerSystem(assetManager))
+        engine.addSystem(AddPlayerToStartingRoomSystem())
+        engine.addSystem(CreatePlayerPhysicsSystem(world))
+
+        engine.addSystem(PlayerMovementSystem())
         engine.addSystem(ProcessPhysicsSystem(world))
-        addPlayerSystemsToEngine()
+        engine.addSystem(PlayerCameraSystem(camera))
         engine.addSystem(RenderSystem(viewport, batch))
 
         if (isDebug) {
             engine.addSystem(Box2DDebugRenderSystem(world, camera))
         }
-    }
-
-    private fun addPlayerSystemsToEngine() {
-        engine.addSystem(CreatePlayerSystem(assetManager))
-        engine.addSystem(AddPlayerToStartingRoomSystem())
-        engine.addSystem(CreatePlayerPhysicsSystem(world))
-        engine.addSystem(PlayerMovementSystem())
-        engine.addSystem(PlayerCameraSystem(camera))
     }
 
     override fun render(delta: Float) {
@@ -112,6 +110,7 @@ class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         }
         engine = PooledEngine()
 
+        world.dispose()
         world = createWorld()
         
         addSystemsToEngine()
