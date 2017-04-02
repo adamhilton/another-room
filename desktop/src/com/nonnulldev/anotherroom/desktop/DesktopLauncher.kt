@@ -3,7 +3,7 @@ package com.nonnulldev.anotherroom.desktop
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
 import com.nonnulldev.anotherroom.AnotherRoomGame
-import com.nonnulldev.anotherroom.config.GameConfig
+import com.nonnulldev.anotherroom.common.config.GameConfig
 
 object DesktopLauncher {
 

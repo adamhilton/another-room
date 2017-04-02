@@ -12,21 +12,21 @@ import com.badlogic.gdx.utils.Logger
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.nonnulldev.anotherroom.AnotherRoomGame
-import com.nonnulldev.anotherroom.assets.AssetDescriptors
-import com.nonnulldev.anotherroom.config.GameConfig
-import com.nonnulldev.anotherroom.input.DungeonScreenInput
-import com.nonnulldev.anotherroom.system.dungeon.DungeonRenderSystem
-import com.nonnulldev.anotherroom.system.player.PlayerRenderSystem
-import com.nonnulldev.anotherroom.system.dungeon.creation.DungeonGenerationSystem
-import com.nonnulldev.anotherroom.system.common.ProcessPhysicsSystem
-import com.nonnulldev.anotherroom.system.common.debug.Box2DDebugRenderSystem
-import com.nonnulldev.anotherroom.system.player.physics.CreatePlayerPhysicsSystem
-import com.nonnulldev.anotherroom.system.dungeon.physics.EarthBoundaryPhysicsSystem
-import com.nonnulldev.anotherroom.system.player.creation.AddPlayerToStartingRoomSystem
-import com.nonnulldev.anotherroom.system.player.PlayerCameraSystem
-import com.nonnulldev.anotherroom.system.player.PlayerMovementSystem
-import com.nonnulldev.anotherroom.system.player.creation.CreatePlayerSystem
-import com.nonnulldev.anotherroom.util.GdxUtils
+import com.nonnulldev.anotherroom.common.assets.AssetDescriptors
+import com.nonnulldev.anotherroom.common.config.GameConfig
+import com.nonnulldev.anotherroom.screen.dungeon.input.DungeonScreenInput
+import com.nonnulldev.anotherroom.dungeon.system.render.DungeonRenderSystem
+import com.nonnulldev.anotherroom.player.system.PlayerRenderSystem
+import com.nonnulldev.anotherroom.dungeon.system.creation.DungeonGenerationSystem
+import com.nonnulldev.anotherroom.common.system.ProcessPhysicsSystem
+import com.nonnulldev.anotherroom.common.system.debug.Box2DDebugRenderSystem
+import com.nonnulldev.anotherroom.player.system.physics.CreatePlayerPhysicsSystem
+import com.nonnulldev.anotherroom.dungeon.system.physics.EarthBoundaryPhysicsSystem
+import com.nonnulldev.anotherroom.player.system.creation.AddPlayerToStartingRoomSystem
+import com.nonnulldev.anotherroom.player.system.PlayerCameraSystem
+import com.nonnulldev.anotherroom.player.system.PlayerMovementSystem
+import com.nonnulldev.anotherroom.player.system.creation.CreatePlayerSystem
+import com.nonnulldev.anotherroom.common.util.GdxUtils
 
 class DungeonScreen(game: AnotherRoomGame) : ScreenAdapter(),
         DungeonScreenInput.Listener,
